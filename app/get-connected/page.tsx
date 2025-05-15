@@ -16,11 +16,13 @@ import { useInView } from "react-intersection-observer"
 import { MobileMenu } from "@/components/mobile-menu"
 import { Input } from "@/components/ui/input"
 import { useVideoModal } from "@/contexts/video-modal-context"
+import { useRouter } from "next/navigation"
 
 export default function GetConnectedPage() {
   const [activeTab, setActiveTab] = useState("sui")
   const [email, setEmail] = useState("")
   const { openVideoModal } = useVideoModal()
+  const router = useRouter()
 
   const { ref: stepsRef, inView: stepsInView } = useInView({
     triggerOnce: false,
@@ -76,8 +78,9 @@ export default function GetConnectedPage() {
                 className="bg-cta-blue text-dark hover:bg-primary text-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => router.push("/sign-in")}
               >
-                Connect Wallet
+                Login
               </AnimatedButton>
             </div>
             <MobileMenu />
@@ -104,7 +107,9 @@ export default function GetConnectedPage() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex space-x-4">
-            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary">Connect SUI Wallet</AnimatedButton>
+            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary" onClick={() => router.push("/sign-in")}>
+              Login
+            </AnimatedButton>
             <AnimatedButton
               variant="outline"
               className="text-white border-white bg-gray-800/50 hover:bg-primary hover:text-dark hover:border-primary"
@@ -140,8 +145,9 @@ export default function GetConnectedPage() {
               <AnimatedButton
                 className="bg-cta-blue text-dark hover:bg-primary px-4 sm:px-8 py-2 sm:py-6 text-sm md:text-base"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(142, 202, 255, 0.5)" }}
+                onClick={() => router.push("/sign-in")}
               >
-                Connect SUI Wallet
+                Login
               </AnimatedButton>
               <AnimatedButton
                 variant="outline"
@@ -505,7 +511,7 @@ export default function GetConnectedPage() {
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Connect to Nexus Trade</h3>
                 <p className="text-gray-300 mb-4">
-                  Visit Nexus Trade and click on the "Connect Wallet" button in the top right corner of the page.
+                  Visit Nexus Trade and click on the "Login" button in the top right corner of the page.
                 </p>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-start">
@@ -896,8 +902,9 @@ export default function GetConnectedPage() {
               <AnimatedButton
                 className="bg-dark text-white hover:bg-secondary px-4 sm:px-8 py-2 sm:py-6 text-sm md:text-base"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(0, 15, 29, 0.5)" }}
+                onClick={() => router.push("/sign-in")}
               >
-                Connect Wallet
+                Login
               </AnimatedButton>
               <AnimatedButton
                 variant="outline"

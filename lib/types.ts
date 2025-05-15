@@ -1,39 +1,61 @@
-// Trading types
-export type TimeFrame = "1m" | "5m" | "15m" | "1h" | "4h" | "1d" | "1w"
+export type WalletType = "sui" | "stashed" | "other"
 
-export type OrderType = "market" | "limit"
+export type Token = "WBTC" | "ETH" | "SUI" | "USDC" | "USDT" | "TUSDC" | "CETUS" | "TURBOS" | "AFT"
 
-export type PositionType = "long" | "short"
+export interface WalletInfo {
+  address: string
+  balance: Record<Token, number>
+  connected: boolean
+  type: WalletType
+}
 
-export type CandleData = {
+// Trading pair type
+export interface TradingPair {
+  name: string
+  baseAsset: string
+  quoteAsset: string
+  precision: number
+  minOrderSize: number
+  baseAssetLogo?: string
+}
+
+// Candle data type for charts
+export interface CandleData {
   time: number
   open: number
   high: number
-  close: number
   low: number
+  close: number
   volume: number
 }
 
-export type OrderBookEntry = {
+// Order book entry type
+export interface OrderBookEntry {
   price: number
   total: number
 }
 
-export type OrderBook = {
+// OrderBook type
+export interface OrderBook {
   bids: OrderBookEntry[]
   asks: OrderBookEntry[]
 }
 
-export type Position = {
+// Position type
+export type PositionType = "long" | "short"
+
+export interface Position {
   id: string
-  type: PositionType
+  pair: string
+  type: "long" | "short"
   entryPrice: number
+  markPrice: number
   leverage: number
   size: number
   margin: number
   liquidationPrice: number
-  stopLoss?: number
-  takeProfit?: number
+  stopLoss: number | null
+  takeProfit: number | null
   pnl: number
   pnlPercentage: number
   timestamp: number
@@ -41,66 +63,41 @@ export type Position = {
   _closeReason?: string | null
 }
 
-export type Order = {
+// Order type
+export type OrderType = "market" | "limit"
+export type OrderStatus = "open" | "filled" | "canceled"
+export type OrderSide = "buy" | "sell"
+
+export interface Order {
   id: string
-  type: OrderType
-  positionType: PositionType
+  pair: string
+  orderType: "market" | "limit"
+  side: "buy" | "sell"
   price: number
-  size: number
-  leverage?: number
-  stopLoss?: number
-  takeProfit?: number
+  amount: number
   filled: number
   status: "open" | "filled" | "canceled"
   timestamp: number
-  filledAt?: number
 }
 
-export type TradeHistory = {
+// Trade history type
+export interface TradeHistory {
   id: string
-  type: PositionType
+  pair?: string
+  type: "long" | "short"
   price: number
   size: number
   fee: number
   timestamp: number
-  action?: "open" | "close"
+  action: "open" | "close"
   pnl?: number
-  reason?: string
 }
 
-// Sui blockchain specific tokens
-export type Token = "SUI" | "USDC" | "USDT" | "WETH" | "WBTC" | "CETUS" | "TURBOS" | "AFT"
-
-export type WalletType = "sui" | "stashed"
-
-export type WalletInfo = {
-  address: string
-  balance: {
-    [key in Token]?: number
-  }
-  connected: boolean
-  type: WalletType
-}
-
-export type TradingViewTimeFrame = "1" | "5" | "15" | "60" | "240" | "D" | "W"
-
-export type TradingPair = {
-  id: string
-  baseAsset: string
-  quoteAsset: string
-  price: number
-  change24h: number
-  volume24h: number
-  baseAssetLogo?: string
-}
-
-export type PriceAlertCondition = "above" | "below"
-
-export type PriceAlert = {
+export interface PriceAlertData {
   id: string
   pair: string
   price: number
-  condition: PriceAlertCondition
+  condition: "above" | "below"
   createdAt: Date
   isActive: boolean
 }

@@ -11,6 +11,7 @@ import { FloatingElements } from "@/components/animations/floating-elements"
 import { useInView } from "react-intersection-observer"
 import { MobileMenu } from "@/components/mobile-menu"
 import { useVideoModal } from "@/contexts/video-modal-context"
+import { useRouter } from "next/navigation"
 
 export default function AboutPage() {
   const { openVideoModal } = useVideoModal()
@@ -31,6 +32,8 @@ export default function AboutPage() {
     threshold: 0.1,
     rootMargin: "0px 0px -100px 0px",
   })
+
+  const router = useRouter()
 
   return (
     <main className="flex min-h-screen flex-col bg-dark">
@@ -62,8 +65,9 @@ export default function AboutPage() {
                 className="bg-cta-blue text-dark hover:bg-primary text-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => router.push("/sign-in")}
               >
-                Connect Wallet
+                Login
               </AnimatedButton>
             </div>
             <MobileMenu />
@@ -90,7 +94,9 @@ export default function AboutPage() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex space-x-4">
-            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary">Connect SUI Wallet</AnimatedButton>
+            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary" onClick={() => router.push("/sign-in")}>
+              Login
+            </AnimatedButton>
             <AnimatedButton
               variant="outline"
               className="text-white border-white bg-gray-800/50 hover:bg-primary hover:text-dark hover:border-primary"
@@ -408,13 +414,13 @@ export default function AboutPage() {
               {/* 2021 */}
               <FadeIn once={false}>
                 <div className="relative flex flex-col md:flex-row items-center md:justify-between">
-                  <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1">
+                  <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1 mb-4 md:mb-0">
                     <h3 className="text-xl font-bold text-white mb-2">Inception</h3>
                     <p className="text-gray-300">
                       Nexus Trade was founded with a vision to revolutionize decentralized derivatives trading.
                     </p>
                   </div>
-                  <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0">
+                  <div className="absolute left-0 md:left-1/2 w-12 h-12 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0 z-10">
                     <span className="text-dark font-bold text-sm">2021</span>
                   </div>
                   <div className="flex-1 md:pl-8 order-3"></div>
@@ -425,10 +431,10 @@ export default function AboutPage() {
               <FadeIn once={false} delay={0.1}>
                 <div className="relative flex flex-col md:flex-row items-center md:justify-between">
                   <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1"></div>
-                  <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0">
+                  <div className="absolute left-0 md:left-1/2 w-12 h-12 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0 z-10">
                     <span className="text-dark font-bold text-sm">Q1</span>
                   </div>
-                  <div className="flex-1 md:pl-8 order-3">
+                  <div className="flex-1 md:pl-8 order-3 mb-4 md:mb-0">
                     <h3 className="text-xl font-bold text-white mb-2">Seed Funding</h3>
                     <p className="text-gray-300">
                       Secured $5M in seed funding to build the initial platform architecture.
@@ -440,13 +446,13 @@ export default function AboutPage() {
               {/* 2022 Q3 */}
               <FadeIn once={false} delay={0.2}>
                 <div className="relative flex flex-col md:flex-row items-center md:justify-between">
-                  <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1">
+                  <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1 mb-4 md:mb-0">
                     <h3 className="text-xl font-bold text-white mb-2">Alpha Launch</h3>
                     <p className="text-gray-300">
                       Released the alpha version of the platform to a select group of early adopters.
                     </p>
                   </div>
-                  <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0">
+                  <div className="absolute left-0 md:left-1/2 w-12 h-12 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0 z-10">
                     <span className="text-dark font-bold text-sm">Q3</span>
                   </div>
                   <div className="flex-1 md:pl-8 order-3"></div>
@@ -457,10 +463,10 @@ export default function AboutPage() {
               <FadeIn once={false} delay={0.3}>
                 <div className="relative flex flex-col md:flex-row items-center md:justify-between">
                   <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1"></div>
-                  <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0">
+                  <div className="absolute left-0 md:left-1/2 w-12 h-12 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0 z-10">
                     <span className="text-dark font-bold text-sm">Q1</span>
                   </div>
-                  <div className="flex-1 md:pl-8 order-3">
+                  <div className="flex-1 md:pl-8 order-3 mb-4 md:mb-0">
                     <h3 className="text-xl font-bold text-white mb-2">Beta Release</h3>
                     <p className="text-gray-300">
                       Launched the beta version with core trading functionality and SUI blockchain integration.
@@ -472,13 +478,13 @@ export default function AboutPage() {
               {/* 2023 Q4 */}
               <FadeIn once={false} delay={0.4}>
                 <div className="relative flex flex-col md:flex-row items-center md:justify-between">
-                  <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1">
+                  <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1 mb-4 md:mb-0">
                     <h3 className="text-xl font-bold text-white mb-2">Public Launch</h3>
                     <p className="text-gray-300">
                       Official public launch of Nexus Trade with full feature set and community programs.
                     </p>
                   </div>
-                  <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0">
+                  <div className="absolute left-0 md:left-1/2 w-12 h-12 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0 z-10">
                     <span className="text-dark font-bold text-sm">Q4</span>
                   </div>
                   <div className="flex-1 md:pl-8 order-3"></div>
@@ -489,10 +495,10 @@ export default function AboutPage() {
               <FadeIn once={false} delay={0.5}>
                 <div className="relative flex flex-col md:flex-row items-center md:justify-between">
                   <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1"></div>
-                  <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0">
+                  <div className="absolute left-0 md:left-1/2 w-12 h-12 bg-primary rounded-full transform md:translate-x-[-50%] flex items-center justify-center order-1 md:order-2 mb-4 md:mb-0 z-10">
                     <span className="text-dark font-bold text-sm">2024</span>
                   </div>
-                  <div className="flex-1 md:pl-8 order-3">
+                  <div className="flex-1 md:pl-8 order-3 mb-4 md:mb-0">
                     <h3 className="text-xl font-bold text-white mb-2">The Future</h3>
                     <p className="text-gray-300">
                       Expanding our ecosystem with new features, partnerships, and community initiatives.

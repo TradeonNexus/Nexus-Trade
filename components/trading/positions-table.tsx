@@ -1,113 +1,91 @@
 "use client"
+
+import { useState } from "react"
 import { motion } from "framer-motion"
 import type { Position } from "@/lib/types"
-import { formatPrice, formatPercentage } from "@/lib/utils"
 
 interface PositionsTableProps {
   positions: Position[]
-  onClosePosition?: (id: string) => void
+  onClosePosition: (id: string) => void
   currentPrice: number
-  className?: string
 }
 
-export function PositionsTable({ positions, onClosePosition, currentPrice, className = "" }: PositionsTableProps) {
+export function PositionsTable({ positions, onClosePosition, currentPrice }: PositionsTableProps) {
+  const [expandedPosition, setExpandedPosition] = useState<string | null>(null)
+
+  const toggleExpand = (id: string) => {
+    setExpandedPosition(expandedPosition === id ? null : id)
+  }
+
+  if (positions.length === 0) {
+    return <div className="p-8 text-center text-gray-400">No open positions</div>
+  }
+
   return (
-    <motion.div
-      className={`bg-black rounded-lg overflow-hidden ${className}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      {positions.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-gray-400 border-b border-gray-800">
-                <th className="px-4 py-2 text-left">Type</th>
-                <th className="px-4 py-2 text-right">Size</th>
-                <th className="px-4 py-2 text-right">Entry Price</th>
-                <th className="px-4 py-2 text-right">Mark Price</th>
-                <th className="px-4 py-2 text-right">SL/TP</th>
-                <th className="px-4 py-2 text-right">Liq. Price</th>
-                <th className="px-4 py-2 text-right">PnL</th>
-                <th className="px-4 py-2 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {positions.map((position) => {
-                // Calculate real-time PnL based on current price
-                const pnlPercentage =
-                  position.type === "long"
-                    ? ((currentPrice - position.entryPrice) / position.entryPrice) * 100 * position.leverage
-                    : ((position.entryPrice - currentPrice) / position.entryPrice) * 100 * position.leverage
+    <div className="p-4">
+      {positions.map((position) => (
+        <motion.div
+          key={position.id}
+          className="mb-4 bg-[#0A0A0A] rounded-lg border border-gray-800 overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="p-4 cursor-pointer" onClick={() => toggleExpand(position.id)}>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-bold text-white">{position.pair}</h3>
+              <span className={`text-sm ${position.pnlPercentage >= 0 ? "text-green-500" : "text-red-500"}`}>
+                Unrealized PnL: {position.pnlPercentage.toFixed(2)}%
+              </span>
+            </div>
 
-                const pnl = (position.size * pnlPercentage) / 100
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Positions</div>
+                <div className="font-medium text-white">{position.size.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Margin</div>
+                <div className="font-medium text-white">{position.margin.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">MMR</div>
+                <div className="font-medium text-white">{Math.abs(position.pnlPercentage).toFixed(2)}%</div>
+              </div>
+            </div>
 
-                // Check if stop loss or take profit would be triggered
-                const isStopLossTriggered =
-                  position.stopLoss &&
-                  ((position.type === "long" && currentPrice <= position.stopLoss) ||
-                    (position.type === "short" && currentPrice >= position.stopLoss))
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Entry price</div>
+                <div className="font-medium text-white">{position.entryPrice.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Mark price</div>
+                <div className="font-medium text-white">{currentPrice.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Estimated Liquidation Price</div>
+                <div className="font-medium text-white">{position.liquidationPrice.toFixed(3)}</div>
+              </div>
+            </div>
+          </div>
 
-                const isTakeProfitTriggered =
-                  position.takeProfit &&
-                  ((position.type === "long" && currentPrice >= position.takeProfit) ||
-                    (position.type === "short" && currentPrice <= position.takeProfit))
-
-                return (
-                  <motion.tr
-                    key={position.id}
-                    className={`border-b border-gray-800 hover:bg-gray-900 ${
-                      isStopLossTriggered ? "bg-red-900/20" : isTakeProfitTriggered ? "bg-green-900/20" : ""
-                    }`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          position.type === "long" ? "bg-blue-900 text-blue-300" : "bg-red-900 text-red-300"
-                        }`}
-                      >
-                        {position.type.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right text-white">${formatPrice(position.size)}</td>
-                    <td className="px-4 py-3 text-right text-white">${formatPrice(position.entryPrice)}</td>
-                    <td className="px-4 py-3 text-right text-white">${formatPrice(currentPrice)}</td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex flex-col">
-                        {position.stopLoss && (
-                          <span className="text-red-400 text-xs">SL: ${formatPrice(position.stopLoss)}</span>
-                        )}
-                        {position.takeProfit && (
-                          <span className="text-green-400 text-xs">TP: ${formatPrice(position.takeProfit)}</span>
-                        )}
-                        {!position.stopLoss && !position.takeProfit && <span className="text-gray-500">-</span>}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-right text-white">${formatPrice(position.liquidationPrice)}</td>
-                    <td className={`px-4 py-3 text-right font-medium ${pnl >= 0 ? "text-green-500" : "text-red-500"}`}>
-                      ${formatPrice(pnl)} ({formatPercentage(pnlPercentage)})
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        className="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-white rounded-md text-xs"
-                        onClick={() => onClosePosition && onClosePosition(position.id)}
-                      >
-                        Close
-                      </button>
-                    </td>
-                  </motion.tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="py-8 text-center text-gray-500">No positions yet</div>
-      )}
-    </motion.div>
+          <div className="flex border-t border-gray-800">
+            <button className="flex-1 py-3 text-center text-white bg-[#001C30] hover:bg-[#002D4A] transition-colors">
+              TP/SL
+            </button>
+            <button className="flex-1 py-3 text-center text-white bg-[#001C30] hover:bg-[#002D4A] transition-colors border-l border-r border-gray-800">
+              Reverse
+            </button>
+            <button
+              className="flex-1 py-3 text-center text-white bg-[#001C30] hover:bg-[#002D4A] transition-colors"
+              onClick={() => onClosePosition(position.id)}
+            >
+              Close
+            </button>
+          </div>
+        </motion.div>
+      ))}
+    </div>
   )
 }

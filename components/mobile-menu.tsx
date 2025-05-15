@@ -15,6 +15,14 @@ export function MobileMenu() {
     setIsOpen(!isOpen)
   }
 
+  const navigationItems = [
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Trading", href: "/trading" },
+    { name: "Get Connected", href: "/get-connected" },
+    { name: "Contact", href: "/contact" },
+  ]
+
   const menuVariants = {
     closed: {
       opacity: 0,
@@ -73,33 +81,17 @@ export function MobileMenu() {
             className="absolute top-16 left-0 right-0 bg-dark z-50 shadow-lg overflow-hidden"
           >
             <nav className="flex flex-col space-y-4 p-4">
-              <motion.div variants={itemVariants}>
-                <Link
-                  href="/"
-                  className="text-white border-l-2 border-primary pl-2 py-2 block"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Home
-                </Link>
-              </motion.div>
-              <motion.div variants={itemVariants}>
-                <Link
-                  href="/about"
-                  className="text-white hover:text-primary pl-2 py-2 block"
-                  onClick={() => setIsOpen(false)}
-                >
-                  About
-                </Link>
-              </motion.div>
-              <motion.div variants={itemVariants}>
-                <Link
-                  href="/get-connected"
-                  className="text-white hover:text-primary pl-2 py-2 block"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Get connected
-                </Link>
-              </motion.div>
+              {navigationItems.map((item) => (
+                <motion.div variants={itemVariants} key={item.name}>
+                  <Link
+                    href={item.href}
+                    className="text-white border-l-2 border-primary pl-2 py-2 block hover:text-primary"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                </motion.div>
+              ))}
               <motion.div variants={itemVariants}>
                 <Button
                   variant="outline"

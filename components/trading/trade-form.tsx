@@ -44,7 +44,7 @@ export function TradeForm({
   const [orderType, setOrderType] = useState<OrderType>("market")
   const [amount, setAmount] = useState<number>(100)
   const [leverage, setLeverage] = useState<number>(3)
-  const [selectedToken, setSelectedToken] = useState<Token>("USDC")
+  const [selectedToken, setSelectedToken] = useState<Token>("WBTC")
   const [stopLoss, setStopLoss] = useState<string>("")
   const [takeProfit, setTakeProfit] = useState<string>("")
   const [showAdvanced, setShowAdvanced] = useState<boolean>(true)
@@ -54,7 +54,7 @@ export function TradeForm({
   const amountOptions = [50, 100, 250, 500, 1000]
 
   // Sui blockchain tokens - filter to show only quote assets
-  const quoteTokens: Token[] = ["USDC", "USDT", "SUI"]
+  const quoteTokens: Token[] = ["WBTC", "ETH", "SUI"]
 
   // Set initial limit price when current price changes
   useEffect(() => {
@@ -63,7 +63,7 @@ export function TradeForm({
     }
   }, [currentPrice, orderType])
 
-  // Set initial stop loss and take profit values on position type change only
+  // Set initial stop loss and take profit values when position type or current price changes
   useEffect(() => {
     if (positionType === "long") {
       // For long positions: stop loss below entry, take profit above entry
@@ -74,7 +74,7 @@ export function TradeForm({
       setStopLoss((currentPrice * 1.05).toFixed(2)) // 5% above entry price
       setTakeProfit((currentPrice * 0.9).toFixed(2)) // 10% below entry price
     }
-  }, [positionType]) // Only run on position type change, not on current price change
+  }, [positionType, currentPrice])
 
   const handleSubmit = () => {
     if (!validateForm()) return
@@ -211,7 +211,7 @@ export function TradeForm({
 
   return (
     <motion.div
-      className={`bg-black rounded-lg p-4 ${className}`}
+      className={`bg-[#0A0A0A] rounded-lg p-4 ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -228,7 +228,7 @@ export function TradeForm({
       <div className="flex space-x-2 mb-4">
         <button
           className={`flex-1 py-2 px-4 rounded-md text-white font-medium transition-colors ${
-            positionType === "long" ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-800 hover:bg-gray-700"
+            positionType === "long" ? "bg-[#0096FF] hover:bg-blue-700" : "bg-[#0A0A0A] hover:bg-gray-700"
           }`}
           onClick={() => setPositionType("long")}
         >
@@ -236,7 +236,7 @@ export function TradeForm({
         </button>
         <button
           className={`flex-1 py-2 px-4 rounded-md text-white font-medium transition-colors ${
-            positionType === "short" ? "bg-red-600 hover:bg-red-700" : "bg-gray-800 hover:bg-gray-700"
+            positionType === "short" ? "bg-red-600 hover:bg-red-700" : "bg-[#0A0A0A] hover:bg-gray-700"
           }`}
           onClick={() => setPositionType("short")}
         >
@@ -248,7 +248,7 @@ export function TradeForm({
       <div className="flex space-x-2 mb-4">
         <button
           className={`flex-1 py-2 px-4 rounded-md text-white font-medium transition-colors ${
-            orderType === "market" ? "bg-blue-900 hover:bg-blue-800" : "bg-gray-800 hover:bg-gray-700"
+            orderType === "market" ? "bg-[#001C30] hover:bg-blue-800" : "bg-[#0A0A0A] hover:bg-gray-700"
           }`}
           onClick={() => setOrderType("market")}
         >
@@ -256,7 +256,7 @@ export function TradeForm({
         </button>
         <button
           className={`flex-1 py-2 px-4 rounded-md text-white font-medium transition-colors ${
-            orderType === "limit" ? "bg-blue-900 hover:bg-blue-800" : "bg-gray-800 hover:bg-gray-700"
+            orderType === "limit" ? "bg-[#001C30] hover:bg-blue-800" : "bg-[#0A0A0A] hover:bg-gray-700"
           }`}
           onClick={() => setOrderType("limit")}
         >
@@ -264,7 +264,7 @@ export function TradeForm({
         </button>
 
         {/* Current Price Display */}
-        <div className="flex-1 py-2 px-4 rounded-md bg-gray-900 text-white font-medium text-right">
+        <div className="flex-1 py-2 px-4 rounded-md bg-[#0A0A0A] text-white font-medium text-right">
           ${currentPrice.toFixed(2)}
         </div>
       </div>
@@ -298,7 +298,7 @@ export function TradeForm({
               <button
                 key={token}
                 className={`flex-1 py-2 px-2 text-sm rounded-md transition-colors ${
-                  selectedToken === token ? "bg-gray-700 text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  selectedToken === token ? "bg-[#001C30] text-white" : "bg-[#0A0A0A] text-gray-400 hover:bg-gray-700"
                 }`}
                 onClick={() => setSelectedToken(token)}
               >
@@ -307,7 +307,7 @@ export function TradeForm({
             ))}
           </div>
 
-          <div className="w-24 py-2 px-4 rounded-md bg-gray-900 text-white font-medium text-right">
+          <div className="w-24 py-2 px-4 rounded-md bg-[#0A0A0A] text-white font-medium text-right">
             {amount.toFixed(2)}
           </div>
         </div>
@@ -318,7 +318,7 @@ export function TradeForm({
             <button
               key={option}
               className={`py-1 px-2 text-xs rounded-md transition-colors ${
-                amount === option ? "bg-primary text-white" : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                amount === option ? "bg-[#0096FF] text-white" : "bg-[#0A0A0A] text-gray-400 hover:bg-gray-700"
               }`}
               onClick={() => setAmount(option)}
             >
@@ -332,7 +332,7 @@ export function TradeForm({
           {[25, 50, 75, 100].map((percentage) => (
             <button
               key={percentage}
-              className="py-1 px-2 text-xs rounded-md bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
+              className="py-1 px-2 text-xs rounded-md bg-[#0A0A0A] text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
               onClick={() => handlePercentageClick(percentage)}
             >
               {percentage}%
@@ -362,13 +362,13 @@ export function TradeForm({
 
           <div className="flex space-x-2">
             <button
-              className="py-1 px-3 rounded-md bg-gray-800 text-white text-sm hover:bg-gray-700"
+              className="py-1 px-3 rounded-md bg-[#0A0A0A] text-white text-sm hover:bg-gray-700"
               onClick={() => setLeverage(Math.max(1, leverage - 1))}
             >
               -
             </button>
             <button
-              className="py-1 px-3 rounded-md bg-gray-800 text-white text-sm hover:bg-gray-700"
+              className="py-1 px-3 rounded-md bg-[#0A0A0A] text-white text-sm hover:bg-gray-700"
               onClick={() => setLeverage(Math.min(10, leverage + 1))}
             >
               +
@@ -378,7 +378,7 @@ export function TradeForm({
       </div>
 
       {/* Advanced Options - Now always visible */}
-      <div className="mb-6 space-y-4 bg-gray-900/30 p-3 rounded-md">
+      <div className="mb-6 space-y-4 bg-[#0A0A0A]/30 p-3 rounded-md">
         {/* Stop Loss */}
         <div>
           <div className="flex justify-between text-sm text-gray-400 mb-1">
@@ -392,7 +392,7 @@ export function TradeForm({
               type="number"
               value={stopLoss}
               onChange={(e) => handleStopLossChange(e.target.value)}
-              className={`bg-gray-900 border-gray-800 text-white flex-1 ${!isStopLossValid ? "border-red-500" : ""}`}
+              className={`bg-[#0A0A0A] border-gray-800 text-white flex-1 ${!isStopLossValid ? "border-red-500" : ""}`}
               placeholder={`Stop Loss Price`}
               step="0.01"
             />
@@ -421,7 +421,7 @@ export function TradeForm({
               type="number"
               value={takeProfit}
               onChange={(e) => handleTakeProfitChange(e.target.value)}
-              className={`bg-gray-900 border-gray-800 text-white flex-1 ${!isTakeProfitValid ? "border-red-500" : ""}`}
+              className={`bg-[#0A0A0A] border-gray-800 text-white flex-1 ${!isTakeProfitValid ? "border-red-500" : ""}`}
               placeholder={`Take Profit Price`}
               step="0.01"
             />
@@ -439,7 +439,7 @@ export function TradeForm({
         </div>
 
         {/* Risk Assessment Indicator */}
-        <div className="mt-3 p-2 bg-gray-800/50 rounded-md">
+        <div className="mt-3 p-2 bg-[#0A0A0A]/50 rounded-md">
           <div className="flex items-center space-x-2 mb-1">
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
             <span className="text-sm font-medium text-yellow-500">Risk Assessment</span>
@@ -465,7 +465,7 @@ export function TradeForm({
       <AnimatedButton
         className={`w-full py-3 font-medium ${
           positionType === "long"
-            ? "bg-blue-600 hover:bg-blue-700 text-white"
+            ? "bg-[#0096FF] hover:bg-blue-700 text-white"
             : "bg-red-600 hover:bg-red-700 text-white"
         }`}
         onClick={handleSubmit}
@@ -481,7 +481,7 @@ export function TradeForm({
             : positionType === "long"
               ? "Place Long Limit Order"
               : "Place Short Limit Order"
-          : "Connect Wallet"}
+          : "Wallet Connected"}
       </AnimatedButton>
 
       {/* Trade Information */}
