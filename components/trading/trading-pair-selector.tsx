@@ -93,7 +93,7 @@ export function TradingPairSelector({ pairs, selectedPair, onSelectPair, classNa
               {selectedPair.baseAsset.substring(0, 2)}
             </div>
           )}
-          <span className="font-medium text-sm md:text-base">
+          <span className="font-medium">
             {selectedPair.baseAsset}/{selectedPair.quoteAsset}
           </span>
         </div>

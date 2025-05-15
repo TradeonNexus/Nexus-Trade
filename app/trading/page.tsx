@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { Bell } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
 import { AuthenticatedLayout } from "@/components/layouts/authenticated-layout"
 import { CandlestickChart } from "@/components/trading/candlestick-chart"
@@ -23,7 +24,7 @@ import type {
   OrderBookEntry,
   PriceAlertData,
 } from "@/lib/types"
-import { ChevronDown, Bell } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 
 export default function TradingPage() {
   const { wallet } = useWallet()
@@ -407,80 +408,22 @@ export default function TradingPage() {
         <div className="grid grid-cols-1 gap-4 p-4">
           {/* Trading pair selector and chart area */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            {/* Left side - Chart */}
-            <div className="lg:col-span-3 bg-[#0A0A0A] rounded-lg border border-gray-800/30">
+            {/* Left sidebar with chart tools */}
+            <div className="hidden lg:flex flex-col bg-[#0A0A0A] rounded-lg border border-gray-800/30 p-2 space-y-4">
+              {/* Navigation icons are already in the AuthenticatedLayout */}
+            </div>
+
+            {/* Chart */}
+            <div className="lg:col-span-2 bg-[#0A0A0A] rounded-lg border border-gray-800/30">
               {/* Trading pair selector */}
               <div className="flex justify-between items-center p-2 border-b border-gray-800/30">
-                <div className="flex items-center space-x-4">
+                <div className="flex-1">
                   <TradingPairSelector
                     pairs={suiTradingPairs}
                     selectedPair={selectedPair}
                     onSelectPair={handlePairChange}
                     className="w-48"
                   />
-
-                  <div className="flex space-x-1">
-                    <motion.button
-                      className={`px-3 py-1 text-xs rounded-md ${
-                        timeframe === "1m" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
-                      }`}
-                      onClick={() => handleTimeframeChange("1m")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      1m
-                    </motion.button>
-                    <motion.button
-                      className={`px-3 py-1 text-xs rounded-md ${
-                        timeframe === "5m" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
-                      }`}
-                      onClick={() => handleTimeframeChange("5m")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      5m
-                    </motion.button>
-                    <motion.button
-                      className={`px-3 py-1 text-xs rounded-md ${
-                        timeframe === "15m" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
-                      }`}
-                      onClick={() => handleTimeframeChange("15m")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      15m
-                    </motion.button>
-                    <motion.button
-                      className={`px-3 py-1 text-xs rounded-md ${
-                        timeframe === "1h" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
-                      }`}
-                      onClick={() => handleTimeframeChange("1h")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      1h
-                    </motion.button>
-                    <motion.button
-                      className={`px-3 py-1 text-xs rounded-md ${
-                        timeframe === "4h" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
-                      }`}
-                      onClick={() => handleTimeframeChange("4h")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      4h
-                    </motion.button>
-                    <motion.button
-                      className={`px-3 py-1 text-xs rounded-md ${
-                        timeframe === "1d" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
-                      }`}
-                      onClick={() => handleTimeframeChange("1d")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      1d
-                    </motion.button>
-                  </div>
                 </div>
 
                 <div className="flex space-x-2">
@@ -501,6 +444,23 @@ export default function TradingPage() {
                     Open Order Book
                   </motion.button>
                 </div>
+              </div>
+
+              {/* Timeframe selector */}
+              <div className="flex space-x-1 p-2 border-b border-gray-800/30">
+                {["1m", "5m", "15m", "1h", "4h", "1d"].map((tf) => (
+                  <motion.button
+                    key={tf}
+                    className={`px-3 py-1 rounded-md text-xs ${
+                      timeframe === tf ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white hover:bg-[#1a1a1a]"
+                    }`}
+                    onClick={() => handleTimeframeChange(tf)}
+                    whileHover={{ scale: timeframe !== tf ? 1.05 : 1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {tf}
+                  </motion.button>
+                ))}
               </div>
 
               {/* Chart */}
