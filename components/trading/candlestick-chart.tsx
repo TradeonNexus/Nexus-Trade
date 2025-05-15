@@ -30,6 +30,14 @@ export function CandlestickChart({
   const [drawingMode, setDrawingMode] = useState<string | null>(null)
   const [drawings, setDrawings] = useState<any[]>([])
 
+  // Track indicator series references
+  const indicatorSeriesRef = useRef<Record<string, any[]>>({
+    ma: [],
+    ema: [],
+    rsi: [],
+    bb: [],
+  })
+
   // Available indicators
   const indicators = [
     { id: "ma", name: "Moving Average", color: "#FFA500" },
@@ -46,6 +54,11 @@ export function CandlestickChart({
       chartRef.current.remove()
       chartRef.current = null
       seriesRef.current = null
+
+      // Reset indicator series references
+      Object.keys(indicatorSeriesRef.current).forEach((key) => {
+        indicatorSeriesRef.current[key] = []
+      })
     }
 
     const handleResize = () => {
@@ -157,6 +170,11 @@ export function CandlestickChart({
         chartRef.current.remove()
         chartRef.current = null
         seriesRef.current = null
+
+        // Reset indicator series references
+        Object.keys(indicatorSeriesRef.current).forEach((key) => {
+          indicatorSeriesRef.current[key] = []
+        })
       }
     }
   }, [height, timeframe])
@@ -295,10 +313,12 @@ export function CandlestickChart({
   const updateIndicators = (formattedData: any[]) => {
     if (!chartRef.current) return
 
-    // Remove existing indicators
-    const existingIndicators = chartRef.current.getAllSeries().filter((s: any) => s.options().type !== "Candlestick")
-    existingIndicators.forEach((series: any) => {
-      chartRef.current.removeSeries(series)
+    // Remove existing indicators by using our tracked references
+    Object.keys(indicatorSeriesRef.current).forEach((key) => {
+      indicatorSeriesRef.current[key].forEach((series) => {
+        chartRef.current.removeSeries(series)
+      })
+      indicatorSeriesRef.current[key] = []
     })
 
     // Add active indicators
@@ -332,6 +352,9 @@ export function CandlestickChart({
             .filter(Boolean) // Remove null values
 
           maSeries.setData(maData)
+
+          // Store reference to the series
+          indicatorSeriesRef.current.ma.push(maSeries)
           break
 
         case "ema":
@@ -354,6 +377,9 @@ export function CandlestickChart({
           })
 
           emaSeries.setData(emaData)
+
+          // Store reference to the series
+          indicatorSeriesRef.current.ema.push(emaSeries)
           break
 
         case "bb":
@@ -409,6 +435,9 @@ export function CandlestickChart({
           upperBandSeries.setData(bbData.map((d: any) => ({ time: d.time, value: d.upper })))
           middleBandSeries.setData(bbData.map((d: any) => ({ time: d.time, value: d.sma })))
           lowerBandSeries.setData(bbData.map((d: any) => ({ time: d.time, value: d.lower })))
+
+          // Store references to the series
+          indicatorSeriesRef.current.bb.push(upperBandSeries, middleBandSeries, lowerBandSeries)
           break
 
         case "rsi":
@@ -471,6 +500,9 @@ export function CandlestickChart({
           }
 
           rsiPane.setData(rsiData)
+
+          // Store reference to the series
+          indicatorSeriesRef.current.rsi.push(rsiPane)
           break
       }
     })

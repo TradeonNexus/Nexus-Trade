@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import Image from "next/image"
 import { useWallet } from "@/contexts/wallet-context"
 import { AuthenticatedLayout } from "@/components/layouts/authenticated-layout"
 import { CandlestickChart } from "@/components/trading/candlestick-chart"
 import { OrderBookModal } from "@/components/trading/order-book-modal"
 import { PriceAlertModal } from "@/components/trading/price-alert"
 import { PositionEditorModal } from "@/components/trading/position-editor-modal"
+import { TradingPairSelector } from "@/components/trading/trading-pair-selector"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
@@ -23,7 +23,7 @@ import type {
   OrderBookEntry,
   PriceAlertData,
 } from "@/lib/types"
-import { ChevronDown, Bell, User } from "lucide-react"
+import { ChevronDown, Bell } from "lucide-react"
 
 export default function TradingPage() {
   const { wallet } = useWallet()
@@ -403,110 +403,84 @@ export default function TradingPage() {
   return (
     <AuthenticatedLayout>
       <div className="p-0 bg-black min-h-screen">
-        {/* Top Navigation */}
-        <motion.div
-          className="flex justify-between items-center p-4 border-b border-gray-800/30 bg-[#0A0A0A]"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex items-center">
-            <Image src="/images/logo.png" alt="Nexus" width={32} height={32} />
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-white font-medium">$450.07</div>
-            <button className="p-2 rounded-full bg-[#111]">
-              <User size={20} className="text-white" />
-            </button>
-          </div>
-        </motion.div>
-
         {/* Main trading interface */}
         <div className="grid grid-cols-1 gap-4 p-4">
           {/* Trading pair selector and chart area */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            {/* Left sidebar with chart tools */}
-            <div className="hidden lg:flex flex-col bg-[#0A0A0A] rounded-lg border border-gray-800/30 p-2 space-y-4">
-              <motion.button
-                className="p-3 rounded-md bg-[#111] hover:bg-[#1a1a1a] transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Image src="/images/icons/dashboard.png" alt="Dashboard" width={24} height={24} />
-              </motion.button>
-              <motion.button
-                className="p-3 rounded-md bg-[#8ECAFF] hover:opacity-90 transition-opacity"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Image src="/images/icons/trade.png" alt="Trade" width={24} height={24} />
-              </motion.button>
-              <motion.button
-                className="p-3 rounded-md bg-[#111] hover:bg-[#1a1a1a] transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Image src="/images/icons/analytics.png" alt="Analytics" width={24} height={24} />
-              </motion.button>
-              <motion.button
-                className="p-3 rounded-md bg-[#111] hover:bg-[#1a1a1a] transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Image src="/images/icons/faucet.png" alt="Faucet" width={24} height={24} />
-              </motion.button>
-              <motion.button
-                className="p-3 rounded-md bg-[#111] hover:bg-[#1a1a1a] transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Image src="/images/icons/deposit.png" alt="Deposit" width={24} height={24} />
-              </motion.button>
-              <motion.button
-                className="p-3 rounded-md bg-[#111] hover:bg-[#1a1a1a] transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Image src="/images/icons/withdraw.png" alt="Withdraw" width={24} height={24} />
-              </motion.button>
-              <motion.button
-                className="p-3 rounded-md bg-[#111] hover:bg-[#1a1a1a] transition-colors mt-auto"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Image src="/images/icons/signout.png" alt="Sign Out" width={24} height={24} />
-              </motion.button>
-            </div>
-
-            {/* Chart */}
-            <div className="lg:col-span-2 bg-[#0A0A0A] rounded-lg border border-gray-800/30">
+            {/* Left side - Chart */}
+            <div className="lg:col-span-3 bg-[#0A0A0A] rounded-lg border border-gray-800/30">
               {/* Trading pair selector */}
               <div className="flex justify-between items-center p-2 border-b border-gray-800/30">
-                <div className="flex space-x-2">
-                  <motion.button
-                    className={`px-4 py-2 rounded-md ${
-                      selectedPair.baseAsset === "SUI"
-                        ? "bg-[#8ECAFF] text-black"
-                        : "bg-[#0A0A0A] text-white hover:bg-[#111]"
-                    }`}
-                    onClick={() => handlePairChange(suiTradingPairs[0])}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    SUI
-                  </motion.button>
-                  <motion.button
-                    className={`px-4 py-2 rounded-md ${
-                      selectedPair.baseAsset === "USDT"
-                        ? "bg-[#8ECAFF] text-black"
-                        : "bg-[#0A0A0A] text-white hover:bg-[#111]"
-                    }`}
-                    onClick={() => handlePairChange(suiTradingPairs[1])}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    USDT
-                  </motion.button>
+                <div className="flex items-center space-x-4">
+                  <TradingPairSelector
+                    pairs={suiTradingPairs}
+                    selectedPair={selectedPair}
+                    onSelectPair={handlePairChange}
+                    className="w-48"
+                  />
+
+                  <div className="flex space-x-1">
+                    <motion.button
+                      className={`px-3 py-1 text-xs rounded-md ${
+                        timeframe === "1m" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                      }`}
+                      onClick={() => handleTimeframeChange("1m")}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      1m
+                    </motion.button>
+                    <motion.button
+                      className={`px-3 py-1 text-xs rounded-md ${
+                        timeframe === "5m" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                      }`}
+                      onClick={() => handleTimeframeChange("5m")}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      5m
+                    </motion.button>
+                    <motion.button
+                      className={`px-3 py-1 text-xs rounded-md ${
+                        timeframe === "15m" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                      }`}
+                      onClick={() => handleTimeframeChange("15m")}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      15m
+                    </motion.button>
+                    <motion.button
+                      className={`px-3 py-1 text-xs rounded-md ${
+                        timeframe === "1h" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                      }`}
+                      onClick={() => handleTimeframeChange("1h")}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      1h
+                    </motion.button>
+                    <motion.button
+                      className={`px-3 py-1 text-xs rounded-md ${
+                        timeframe === "4h" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                      }`}
+                      onClick={() => handleTimeframeChange("4h")}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      4h
+                    </motion.button>
+                    <motion.button
+                      className={`px-3 py-1 text-xs rounded-md ${
+                        timeframe === "1d" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                      }`}
+                      onClick={() => handleTimeframeChange("1d")}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      1d
+                    </motion.button>
+                  </div>
                 </div>
 
                 <div className="flex space-x-2">
@@ -964,34 +938,6 @@ export default function TradingPage() {
             </Tabs>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        <motion.div
-          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 lg:hidden flex bg-[#0A0A0A] rounded-full border border-gray-800/30 p-1 z-50"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <motion.button className="p-2" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Image src="/images/icons/dashboard.png" alt="Dashboard" width={20} height={20} />
-          </motion.button>
-          <motion.button
-            className="p-2 bg-[#8ECAFF] rounded-full"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Image src="/images/icons/trade.png" alt="Trade" width={20} height={20} />
-          </motion.button>
-          <motion.button className="p-2" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Image src="/images/icons/analytics.png" alt="Analytics" width={20} height={20} />
-          </motion.button>
-          <motion.button className="p-2" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Image src="/images/icons/faucet.png" alt="Faucet" width={20} height={20} />
-          </motion.button>
-          <motion.button className="p-2" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Image src="/images/icons/deposit.png" alt="Deposit" width={20} height={20} />
-          </motion.button>
-        </motion.div>
 
         {/* Order Book Modal */}
         <AnimatePresence>

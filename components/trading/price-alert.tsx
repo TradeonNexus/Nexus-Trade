@@ -1,11 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
-import { AnimatedButton } from "@/components/animations/animated-button"
 import { motion } from "framer-motion"
-import { Bell, X, Trash } from "lucide-react"
-import { PriceEditor } from "./price-editor"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Bell, Trash2, BellOff } from "lucide-react"
 
 export interface PriceAlertData {
   id: string
@@ -37,125 +36,119 @@ export function PriceAlertModal({
   currentPrice,
   alerts,
 }: PriceAlertModalProps) {
-  const [alertPrice, setAlertPrice] = useState<number>(currentPrice)
-  const [condition, setCondition] = useState<"above" | "below">("above")
+  const [alertPrice, setAlertPrice] = useState(currentPrice)
+  const [alertCondition, setAlertCondition] = useState<"above" | "below">("above")
 
   const handleAddAlert = () => {
     onAddAlert({
       pair: currentPair,
       price: alertPrice,
-      condition,
+      condition: alertCondition,
     })
 
-    // Reset form for next alert
+    // Reset form
     setAlertPrice(currentPrice)
-    setCondition("above")
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-gray-900 border border-gray-800 p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-bold text-white flex items-center">
-            <Bell className="text-primary mr-2 h-5 w-5" />
-            Price Alerts
-          </DialogTitle>
-          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
+      <DialogContent className="bg-[#0A0A0A] border border-gray-800/50 sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">Price Alerts</DialogTitle>
         </DialogHeader>
 
-        <div className="p-6 pt-2 space-y-6">
+        <div className="space-y-6 py-4">
+          {/* Current Price */}
+          <div className="flex justify-between items-center p-3 bg-[#111] rounded-md">
+            <div>
+              <p className="text-sm text-gray-400">Current Price</p>
+              <p className="font-medium">${currentPrice.toFixed(2)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-400">Pair</p>
+              <p className="font-medium">{currentPair}</p>
+            </div>
+          </div>
+
           {/* New Alert Form */}
           <div className="space-y-4">
-            <p className="text-sm text-gray-300">
-              Create an alert for {currentPair} when the price goes above or below a specific level.
-            </p>
+            <h3 className="text-sm font-medium">Create New Alert</h3>
 
-            <div className="grid grid-cols-[auto_1fr] gap-2 items-center">
-              <select
-                value={condition}
-                onChange={(e) => setCondition(e.target.value as "above" | "below")}
-                className="bg-gray-800 border-gray-700 text-white rounded-md p-2 text-sm focus:ring-primary focus:border-primary"
+            <div className="flex space-x-2">
+              <button
+                className={`flex-1 py-2 text-sm rounded-md ${
+                  alertCondition === "above" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                }`}
+                onClick={() => setAlertCondition("above")}
               >
-                <option value="above">Above</option>
-                <option value="below">Below</option>
-              </select>
-
-              <PriceEditor initialPrice={alertPrice} onChange={setAlertPrice} precision={2} step={0.01} label="" />
+                Price Above
+              </button>
+              <button
+                className={`flex-1 py-2 text-sm rounded-md ${
+                  alertCondition === "below" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+                }`}
+                onClick={() => setAlertCondition("below")}
+              >
+                Price Below
+              </button>
             </div>
 
-            <div className="text-sm text-gray-400">Current price: ${currentPrice.toFixed(2)}</div>
-
-            <AnimatedButton
-              className="w-full py-2 bg-primary text-white hover:bg-primary/90"
-              onClick={handleAddAlert}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Add Alert
-            </AnimatedButton>
+            <div className="flex space-x-2">
+              <Input
+                type="number"
+                value={alertPrice}
+                onChange={(e) => setAlertPrice(Number(e.target.value))}
+                placeholder="Alert Price"
+                className="bg-[#111] border-gray-800"
+              />
+              <motion.button
+                className="px-4 py-2 bg-[#8ECAFF] text-black rounded-md"
+                onClick={handleAddAlert}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Bell size={16} />
+              </motion.button>
+            </div>
           </div>
 
           {/* Existing Alerts */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-white">Your Alerts</h3>
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">Your Alerts</h3>
 
             {alerts.length > 0 ? (
-              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-60 overflow-y-auto">
                 {alerts.map((alert) => (
-                  <motion.div
-                    key={alert.id}
-                    className="bg-gray-800 rounded-md p-3 flex justify-between items-center"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center">
-                        <span className="text-sm font-medium text-white">{alert.pair}</span>
-                        <span className="mx-2 text-gray-500">•</span>
-                        <span className={`text-sm ${alert.condition === "above" ? "text-green-500" : "text-red-500"}`}>
-                          {alert.condition === "above" ? "↑" : "↓"} ${alert.price.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1">Created: {alert.createdAt.toLocaleString()}</div>
+                  <div key={alert.id} className="flex justify-between items-center p-3 bg-[#111] rounded-md">
+                    <div>
+                      <p className="text-sm font-medium">{alert.pair}</p>
+                      <p className="text-xs text-gray-400">
+                        {alert.condition === "above" ? "Above" : "Below"} ${alert.price.toFixed(2)}
+                      </p>
                     </div>
-
-                    <div className="flex items-center space-x-2">
-                      <label className="flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={alert.isActive}
-                          onChange={(e) => onToggleAlert(alert.id, e.target.checked)}
-                          className="sr-only"
-                        />
-                        <div
-                          className={`w-8 h-4 rounded-full p-1 transition-colors ${
-                            alert.isActive ? "bg-primary" : "bg-gray-700"
-                          }`}
-                        >
-                          <motion.div
-                            className="bg-white w-2 h-2 rounded-full"
-                            animate={{ x: alert.isActive ? 16 : 0 }}
-                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          />
-                        </div>
-                      </label>
-
-                      <button
-                        className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-700"
-                        onClick={() => onDeleteAlert(alert.id)}
+                    <div className="flex space-x-2">
+                      <motion.button
+                        onClick={() => onToggleAlert(alert.id, !alert.isActive)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="text-gray-400 hover:text-white"
                       >
-                        <Trash className="h-4 w-4" />
-                      </button>
+                        {alert.isActive ? <Bell size={16} /> : <BellOff size={16} />}
+                      </motion.button>
+                      <motion.button
+                        onClick={() => onDeleteAlert(alert.id)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <Trash2 size={16} />
+                      </motion.button>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4 text-gray-500 text-sm">No alerts yet. Create one above.</div>
+              <div className="text-center p-4 text-gray-400">No alerts created yet</div>
             )}
           </div>
         </div>
