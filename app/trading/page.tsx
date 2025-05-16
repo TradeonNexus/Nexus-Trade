@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Bell } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useWallet } from "@/contexts/wallet-context"
 import { AuthenticatedLayout } from "@/components/layouts/authenticated-layout"
 import { CandlestickChart } from "@/components/trading/candlestick-chart"
@@ -27,6 +28,7 @@ import type {
 import { ChevronDown } from "lucide-react"
 
 export default function TradingPage() {
+  const router = useRouter()
   const { wallet } = useWallet()
   const { toast } = useToast()
 
@@ -71,6 +73,13 @@ export default function TradingPage() {
     bids: [],
     asks: [],
   })
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (!wallet?.connected) {
+      router.push("/sign-in")
+    }
+  }, [wallet, router])
 
   // Initialize with mock data
   useEffect(() => {
@@ -399,6 +408,11 @@ export default function TradingPage() {
   const setMaxAmount = () => {
     // In a real app, this would be based on available balance
     setAmount(10)
+  }
+
+  // If not authenticated, don't render the page
+  if (!wallet?.connected) {
+    return null
   }
 
   return (

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useWallet } from "@/contexts/wallet-context"
 import { Toaster } from "@/components/ui/toaster"
 import Link from "next/link"
@@ -15,14 +15,18 @@ interface AuthenticatedLayoutProps {
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { wallet } = useWallet()
 
   useEffect(() => {
+    // Check if wallet is not connected and redirect to sign-in
     if (!wallet?.connected) {
       router.push("/sign-in")
     }
   }, [wallet, router])
 
+  // Don't render anything until we've checked authentication
+  // This prevents the flash of protected content before redirect
   if (!wallet?.connected) {
     return null
   }
@@ -44,22 +48,34 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
       </header>
       <div className="fixed left-0 top-0 bottom-0 z-40 w-[72px] bg-[#0A0A0A] border-r border-gray-800/30 mt-24 ml-4 rounded-lg">
         <div className="flex flex-col items-center py-4 space-y-6">
-          <Link href="/dashboard" className="p-3 rounded-lg hover:bg-[#111] transition-colors">
+          <Link
+            href="/dashboard"
+            className={`p-3 rounded-lg ${pathname === "/dashboard" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
+          >
             <Image src="/images/icons/dashboard.png" alt="Dashboard" width={24} height={24} />
           </Link>
-          <Link href="/trading" className="p-3 rounded-lg bg-[#111] transition-colors">
+          <Link
+            href="/trading"
+            className={`p-3 rounded-lg ${pathname === "/trading" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
+          >
             <Image src="/images/icons/trade.png" alt="Trading" width={24} height={24} />
           </Link>
-          <Link href="/analytics" className="p-3 rounded-lg hover:bg-[#111] transition-colors">
-            <Image src="/images/icons/analytics.png" alt="Analytics" width={24} height={24} />
-          </Link>
-          <Link href="/faucet" className="p-3 rounded-lg hover:bg-[#111] transition-colors">
+          <Link
+            href="/faucet"
+            className={`p-3 rounded-lg ${pathname === "/faucet" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
+          >
             <Image src="/images/icons/faucet.png" alt="Faucet" width={24} height={24} />
           </Link>
-          <Link href="/deposit" className="p-3 rounded-lg hover:bg-[#111] transition-colors">
+          <Link
+            href="/deposit"
+            className={`p-3 rounded-lg ${pathname === "/deposit" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
+          >
             <Image src="/images/icons/deposit.png" alt="Deposit" width={24} height={24} />
           </Link>
-          <Link href="/withdraw" className="p-3 rounded-lg hover:bg-[#111] transition-colors">
+          <Link
+            href="/withdraw"
+            className={`p-3 rounded-lg ${pathname === "/withdraw" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
+          >
             <Image src="/images/icons/withdraw.png" alt="Withdraw" width={24} height={24} />
           </Link>
           <button

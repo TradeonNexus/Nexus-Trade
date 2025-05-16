@@ -27,18 +27,22 @@ interface WalletProviderProps {
 export function WalletProvider({ children }: WalletProviderProps) {
   const [wallet, setWallet] = useState<WalletInfo | null>(null)
   const [isConnecting, setIsConnecting] = useState(false)
+  const [initialized, setInitialized] = useState(false)
   const { toast } = useToast()
 
   // Check for existing wallet connection on mount
   useEffect(() => {
-    const savedWallet = localStorage.getItem("nexus_wallet")
-    if (savedWallet) {
-      try {
-        setWallet(JSON.parse(savedWallet))
-      } catch (error) {
-        console.error("Failed to parse saved wallet", error)
-        localStorage.removeItem("nexus_wallet")
+    try {
+      const savedWallet = localStorage.getItem("nexus_wallet")
+      if (savedWallet) {
+        const parsedWallet = JSON.parse(savedWallet)
+        setWallet(parsedWallet)
       }
+    } catch (error) {
+      console.error("Failed to parse saved wallet", error)
+      localStorage.removeItem("nexus_wallet")
+    } finally {
+      setInitialized(true)
     }
   }, [])
 
@@ -101,6 +105,11 @@ export function WalletProvider({ children }: WalletProviderProps) {
       title: "Wallet Disconnected",
       description: "Your wallet has been disconnected.",
     })
+  }
+
+  // Don't render children until we've checked localStorage for wallet
+  if (!initialized) {
+    return null
   }
 
   return (
