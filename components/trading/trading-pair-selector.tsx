@@ -157,8 +157,14 @@ export function TradingPairSelector({ pairs, selectedPair, onSelectPair, classNa
 
                     <div className="flex items-center space-x-3">
                       <span className={pair.change24h >= 0 ? "text-green-500" : "text-red-500"}>
-                        {pair.change24h >= 0 ? "+" : ""}
-                        {pair.change24h.toFixed(2)}%
+                        {pair.change24h !== undefined ? (
+                          <>
+                            {pair.change24h >= 0 ? "+" : ""}
+                            {pair.change24h.toFixed(2)}%
+                          </>
+                        ) : (
+                          "0.00%"
+                        )}
                       </span>
                       <motion.button
                         onClick={(e) => toggleFavorite(e, pair.id)}

@@ -11,12 +11,14 @@ export interface WalletInfo {
 
 // Trading pair type
 export interface TradingPair {
+  id: string
   name: string
   baseAsset: string
   quoteAsset: string
   precision: number
   minOrderSize: number
   baseAssetLogo?: string
+  change24h?: number // Make it optional with ?
 }
 
 // Candle data type for charts

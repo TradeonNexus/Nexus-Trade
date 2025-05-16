@@ -1,13 +1,44 @@
 import type { CandleData, OrderBookEntry, TradingPair } from "./types"
 
-// Trading pairs available on SUI blockchain
+// Find where suiTradingPairs is defined and make sure each pair has an id and change24h property
 export const suiTradingPairs: TradingPair[] = [
-  { baseAsset: "SUI", quoteAsset: "USDT", name: "SUI/USDT" },
-  { baseAsset: "WBTC", quoteAsset: "USDT", name: "WBTC/USDT" },
-  { baseAsset: "ETH", quoteAsset: "USDT", name: "ETH/USDT" },
-  { baseAsset: "SUI", quoteAsset: "USDC", name: "SUI/USDC" },
-  { baseAsset: "WBTC", quoteAsset: "USDC", name: "WBTC/USDC" },
-  { baseAsset: "ETH", quoteAsset: "USDC", name: "ETH/USDC" },
+  {
+    id: "sui-usdt",
+    name: "SUI/USDT",
+    baseAsset: "SUI",
+    quoteAsset: "USDT",
+    precision: 4,
+    minOrderSize: 0.01,
+    baseAssetLogo: "/images/icons/sui.png",
+    change24h: 2.45,
+  },
+  {
+    id: "usdt-sui",
+    name: "USDT/SUI",
+    baseAsset: "USDT",
+    quoteAsset: "SUI",
+    precision: 4,
+    minOrderSize: 0.01,
+    change24h: -1.23,
+  },
+  {
+    id: "btc-usdt",
+    name: "BTC/USDT",
+    baseAsset: "BTC",
+    quoteAsset: "USDT",
+    precision: 2,
+    minOrderSize: 0.001,
+    change24h: 3.75,
+  },
+  {
+    id: "eth-usdt",
+    name: "ETH/USDT",
+    baseAsset: "ETH",
+    quoteAsset: "USDT",
+    precision: 2,
+    minOrderSize: 0.01,
+    change24h: 1.89,
+  },
 ]
 
 // Generate mock candle data
