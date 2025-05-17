@@ -1,11 +1,11 @@
 "use client"
 
 import type React from "react"
-
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/logo"
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Input } from "@/components/ui/input"
 import { MobileMenu } from "@/components/mobile-menu"
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { FadeIn } from "@/components/animations/fade-in"
@@ -17,7 +17,6 @@ import { AnimatedBackground } from "@/components/animations/animated-background"
 import { FloatingElements } from "@/components/animations/floating-elements"
 import { useInView } from "react-intersection-observer"
 import { useVideoModal } from "@/contexts/video-modal-context"
-import { Logo } from "@/components/logo"
 import { useWallet } from "@/contexts/wallet-context"
 
 export default function Home() {
@@ -148,7 +147,6 @@ export default function Home() {
         </div>
       </motion.header>
 
-      {/* Rest of the page content remains the same */}
       {/* Hero Section */}
       <section className="bg-dark py-12 md:py-20 text-center px-4 relative overflow-hidden" ref={heroRef}>
         {/* Background Animation */}
@@ -558,10 +556,10 @@ export default function Home() {
             <FadeIn direction="right" delay={0.2} once={false}>
               <div className="w-full md:w-auto">
                 <form className="flex flex-col sm:flex-row gap-2 w-full" onSubmit={handleSubscribe}>
-                  <Input
+                  <Button
                     type="email"
                     placeholder="Enter your email"
-                    className="w-full sm:w-64 md:w-80"
+                    className="w-full sm:w-64 md:w-80 bg-gray-200 text-gray-800 hover:bg-gray-300"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

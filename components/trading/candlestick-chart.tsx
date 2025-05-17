@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { createChart, ColorType, CrosshairMode, LineStyle } from "lightweight-charts"
+import { createChart, ColorType, type IChartApi, type ISeriesApi, LineStyle } from "lightweight-charts"
 import type { CandleData } from "@/lib/types"
 import { motion } from "framer-motion"
 import {
@@ -15,25 +15,31 @@ import {
   RefreshCw,
   Layers,
 } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { Button } from "@/components/ui/button"
 
 interface CandlestickChartProps {
   data: CandleData[]
-  width?: number
+  timeframe: string
+  onTimeframeChange: (timeframe: string) => void
+  priceAlerts?: { price: number; direction: "above" | "below" }[]
   height?: number
+  width?: number
   className?: string
-  timeframe?: string
 }
 
 export function CandlestickChart({
   data,
-  width = 600,
+  timeframe,
+  onTimeframeChange,
+  priceAlerts = [],
   height = 400,
+  width = 600,
   className = "",
-  timeframe = "1h",
 }: CandlestickChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<any>(null)
-  const seriesRef = useRef<any>(null)
+  const chartRef = useRef<IChartApi | null>(null)
+  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null)
   const drawingRef = useRef<any>(null)
   const [activeIndicators, setActiveIndicators] = useState<string[]>([])
   const [showIndicatorMenu, setShowIndicatorMenu] = useState(false)
@@ -42,6 +48,7 @@ export function CandlestickChart({
   const [chartType, setChartType] = useState<"candles" | "line" | "area">("candles")
   const [scaleMode, setScaleMode] = useState<"linear" | "logarithmic">("linear")
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const isMobile = useIsMobile()
 
   // Track indicator series references
   const indicatorSeriesRef = useRef<Record<string, any[]>>({
@@ -60,6 +67,9 @@ export function CandlestickChart({
     { id: "bb", name: "Bollinger Bands", color: "#FFFF00" },
     { id: "vwap", name: "VWAP", color: "#900C3F" },
   ]
+
+  // Available timeframes
+  const timeframes = ["1m", "5m", "15m", "1h", "4h", "1d"]
 
   useEffect(() => {
     if (!chartContainerRef.current) return
@@ -106,7 +116,7 @@ export function CandlestickChart({
         },
       },
       crosshair: {
-        mode: CrosshairMode.Normal,
+        mode: 0,
         vertLine: {
           color: "rgba(255, 255, 255, 0.4)",
           width: 1,
@@ -141,6 +151,13 @@ export function CandlestickChart({
       },
       handleScroll: {
         vertTouchDrag: true,
+        mouseWheel: true,
+        pressedMouseMove: true,
+      },
+      handleScale: {
+        axisPressedMouseMove: true,
+        mouseWheel: true,
+        pinch: true,
       },
       // Remove watermark
       watermark: {
@@ -152,7 +169,7 @@ export function CandlestickChart({
     })
 
     // Create series based on chart type with professional colors
-    let mainSeries: any
+    let mainSeries: ISeriesApi<"Candlestick"> | ISeriesApi<"Line"> | ISeriesApi<"Area"> | null = null
 
     if (chartType === "candles") {
       mainSeries = chart.addCandlestickSeries({
@@ -189,8 +206,10 @@ export function CandlestickChart({
     }))
 
     // Set data and fit content
-    mainSeries.setData(formattedData)
-    chart.timeScale().fitContent()
+    if (mainSeries) {
+      mainSeries.setData(formattedData)
+      chart.timeScale().fitContent()
+    }
 
     // Save references
     chartRef.current = chart
@@ -230,7 +249,9 @@ export function CandlestickChart({
       value: candle.close, // For line and area charts
     }))
 
-    seriesRef.current.setData(formattedData)
+    if (seriesRef.current) {
+      seriesRef.current.setData(formattedData)
+    }
 
     if (chartRef.current) {
       chartRef.current.timeScale().fitContent()
@@ -241,7 +262,7 @@ export function CandlestickChart({
   }, [data, activeIndicators])
 
   // Setup drawing tools
-  const setupDrawingTools = (chart: any, formattedData: any[]) => {
+  const setupDrawingTools = (chart: IChartApi, formattedData: any[]) => {
     if (!chartContainerRef.current) return
 
     // Initialize drawing state
@@ -657,8 +678,52 @@ export function CandlestickChart({
     setScaleMode(mode)
   }
 
+  // Add price alert lines
+  useEffect(() => {
+    if (chartRef.current && seriesRef.current) {
+      // Clear existing lines
+      chartRef.current.priceScale("right").applyOptions({
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      })
+
+      // Add price alert lines
+      priceAlerts.forEach((alert, index) => {
+        const color = alert.direction === "above" ? "#10b981" : "#ef4444"
+
+        seriesRef.current.createPriceLine({
+          price: alert.price,
+          color,
+          lineWidth: 1,
+          lineStyle: LineStyle.Dashed,
+          axisLabelVisible: true,
+          title: `Alert ${alert.direction} $${alert.price}`,
+        })
+      })
+    }
+  }, [chartRef, seriesRef, priceAlerts])
+
   return (
-    <div className="relative">
+    <div className="flex flex-col h-full relative">
+      {!isMobile && (
+        <div className="flex justify-between items-center p-2 border-b border-gray-800">
+          <div className="flex space-x-2">
+            {timeframes.map((tf) => (
+              <Button
+                key={tf}
+                variant={timeframe === tf ? "default" : "outline"}
+                size="sm"
+                onClick={() => onTimeframeChange(tf)}
+                className="text-xs px-2 py-1 h-auto"
+              >
+                {tf}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Chart Container */}
       <motion.div
         ref={chartContainerRef}
