@@ -1,6 +1,6 @@
-import type { CandleData, OrderBookEntry, TradingPair } from "./types"
+import type { CandleData, OrderBookEntry, TradingPair } from "@/lib/types"
 
-// Find where suiTradingPairs is defined and make sure each pair has an id and change24h property
+// Mock trading pairs
 export const suiTradingPairs: TradingPair[] = [
   {
     id: "sui-usdt",
@@ -9,7 +9,6 @@ export const suiTradingPairs: TradingPair[] = [
     quoteAsset: "USDT",
     precision: 4,
     minOrderSize: 0.01,
-    baseAssetLogo: "/images/icons/sui.png",
     change24h: 2.45,
   },
   {
@@ -28,7 +27,7 @@ export const suiTradingPairs: TradingPair[] = [
     quoteAsset: "USDT",
     precision: 2,
     minOrderSize: 0.001,
-    change24h: 3.75,
+    change24h: 0.75,
   },
   {
     id: "eth-usdt",
@@ -37,13 +36,13 @@ export const suiTradingPairs: TradingPair[] = [
     quoteAsset: "USDT",
     precision: 2,
     minOrderSize: 0.01,
-    change24h: 1.89,
+    change24h: -0.32,
   },
 ]
 
 // Generate mock candle data
-export function generateMockCandleData(count = 100, timeframe = "1h"): CandleData[] {
-  const now = new Date().getTime()
+export function generateMockCandleData(count: number, timeframe = "1h"): CandleData[] {
+  const data: CandleData[] = []
   let timeIncrement: number
 
   // Set time increment based on timeframe
@@ -70,41 +69,41 @@ export function generateMockCandleData(count = 100, timeframe = "1h"): CandleDat
       timeIncrement = 60 * 60 * 1000 // Default to 1 hour
   }
 
-  // Start price
-  let lastClose = 128.2
-  let trend = 0
-  let trendStrength = 0
-  let trendDuration = 0
+  // Start time (now - count * timeIncrement)
+  let time = Date.now() - count * timeIncrement
 
-  return Array.from({ length: count }).map((_, i) => {
-    // Update trend occasionally
-    if (trendDuration <= 0) {
-      trend = Math.random() > 0.5 ? 1 : -1
-      trendStrength = Math.random() * 0.02
-      trendDuration = Math.floor(Math.random() * 15) + 5
-    }
-    trendDuration--
+  // Initial price
+  let price = 100 + Math.random() * 50
 
-    // Calculate price movement with trend bias
-    const change = (Math.random() - 0.5) * 0.02 + trend * trendStrength
-    const open = lastClose
-    const close = open * (1 + change)
-    const high = Math.max(open, close) * (1 + Math.random() * 0.005)
-    const low = Math.min(open, close) * (1 - Math.random() * 0.005)
+  for (let i = 0; i < count; i++) {
+    // Random price movement
+    const change = (Math.random() - 0.5) * 2 // -1 to 1
+    const changePercent = change * 0.02 // Max 2% change
+
+    const open = price
+    price = price * (1 + changePercent)
+    const close = price
+
+    // High and low
+    const high = Math.max(open, close) * (1 + Math.random() * 0.01)
+    const low = Math.min(open, close) * (1 - Math.random() * 0.01)
+
+    // Volume
     const volume = Math.random() * 100 + 50
 
-    // Save close price for next candle
-    lastClose = close
-
-    return {
-      time: now - (count - i) * timeIncrement,
+    data.push({
+      time,
       open,
       high,
       low,
       close,
       volume,
-    }
-  })
+    })
+
+    time += timeIncrement
+  }
+
+  return data
 }
 
 // Generate mock order book
@@ -112,26 +111,28 @@ export function generateMockOrderBook(currentPrice: number): { bids: OrderBookEn
   const bids: OrderBookEntry[] = []
   const asks: OrderBookEntry[] = []
 
-  // Generate bids (buy orders) - slightly below current price
-  for (let i = 0; i < 12; i++) {
-    const priceDelta = (Math.random() * 0.05 + 0.001) * (i + 1)
-    const price = Number.parseFloat((currentPrice * (1 - priceDelta / 100)).toFixed(2))
-    const total = Number.parseFloat((Math.random() * 15 + 1).toFixed(2))
+  // Generate 10 bid entries (buy orders)
+  for (let i = 0; i < 10; i++) {
+    const priceDrop = (i + 1) * 0.1 // Each bid is 0.1% lower than the previous
+    const price = Number.parseFloat((currentPrice * (1 - priceDrop / 100)).toFixed(2))
+    const total = Number.parseFloat((Math.random() * 10 + 1).toFixed(2))
+
     bids.push({ price, total })
   }
 
-  // Sort bids in descending order (highest buy price first)
-  bids.sort((a, b) => b.price - a.price)
+  // Generate 10 ask entries (sell orders)
+  for (let i = 0; i < 10; i++) {
+    const priceIncrease = (i + 1) * 0.1 // Each ask is 0.1% higher than the previous
+    const price = Number.parseFloat((currentPrice * (1 + priceIncrease / 100)).toFixed(2))
+    const total = Number.parseFloat((Math.random() * 10 + 1).toFixed(2))
 
-  // Generate asks (sell orders) - slightly above current price
-  for (let i = 0; i < 12; i++) {
-    const priceDelta = (Math.random() * 0.05 + 0.001) * (i + 1)
-    const price = Number.parseFloat((currentPrice * (1 + priceDelta / 100)).toFixed(2))
-    const total = Number.parseFloat((Math.random() * 15 + 1).toFixed(2))
     asks.push({ price, total })
   }
 
-  // Sort asks in ascending order (lowest sell price first)
+  // Sort bids in descending order (highest price first)
+  bids.sort((a, b) => b.price - a.price)
+
+  // Sort asks in ascending order (lowest price first)
   asks.sort((a, b) => a.price - b.price)
 
   return { bids, asks }

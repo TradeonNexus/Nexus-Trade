@@ -4,7 +4,17 @@ import { useEffect, useRef, useState } from "react"
 import { createChart, ColorType, CrosshairMode, LineStyle } from "lightweight-charts"
 import type { CandleData } from "@/lib/types"
 import { motion } from "framer-motion"
-import { Pencil, MousePointer, TrendingUp, Trash2, ChevronDown } from "lucide-react"
+import {
+  BarChart2,
+  LineChart,
+  TrendingUp,
+  Trash2,
+  ChevronDown,
+  Settings,
+  Maximize,
+  RefreshCw,
+  Layers,
+} from "lucide-react"
 
 interface CandlestickChartProps {
   data: CandleData[]
@@ -29,6 +39,9 @@ export function CandlestickChart({
   const [showIndicatorMenu, setShowIndicatorMenu] = useState(false)
   const [drawingMode, setDrawingMode] = useState<string | null>(null)
   const [drawings, setDrawings] = useState<any[]>([])
+  const [chartType, setChartType] = useState<"candles" | "line" | "area">("candles")
+  const [scaleMode, setScaleMode] = useState<"linear" | "logarithmic">("linear")
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   // Track indicator series references
   const indicatorSeriesRef = useRef<Record<string, any[]>>({
@@ -36,14 +49,16 @@ export function CandlestickChart({
     ema: [],
     rsi: [],
     bb: [],
+    vwap: [],
   })
 
-  // Available indicators
+  // Available indicators with professional colors
   const indicators = [
-    { id: "ma", name: "Moving Average", color: "#FFA500" },
-    { id: "ema", name: "EMA", color: "#FF00FF" },
-    { id: "rsi", name: "RSI", color: "#00FFFF" },
+    { id: "ma", name: "Moving Average (20)", color: "#FFA500" },
+    { id: "ema", name: "EMA (12)", color: "#FF00FF" },
+    { id: "rsi", name: "RSI (14)", color: "#00FFFF" },
     { id: "bb", name: "Bollinger Bands", color: "#FFFF00" },
+    { id: "vwap", name: "VWAP", color: "#900C3F" },
   ]
 
   useEffect(() => {
@@ -70,7 +85,7 @@ export function CandlestickChart({
       }
     }
 
-    // Create chart with TradingView-like appearance
+    // Create chart with professional appearance
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: height,
@@ -120,8 +135,9 @@ export function CandlestickChart({
         borderColor: "rgba(42, 46, 57, 0.2)",
         scaleMargins: {
           top: 0.1,
-          bottom: 0.1,
+          bottom: 0.05,
         },
+        mode: scaleMode,
       },
       handleScroll: {
         vertTouchDrag: true,
@@ -129,17 +145,38 @@ export function CandlestickChart({
       // Remove watermark
       watermark: {
         visible: false,
+        text: "",
+        color: "transparent",
+        fontSize: 0,
       },
     })
 
-    // Create candlestick series
-    const candlestickSeries = chart.addCandlestickSeries({
-      upColor: "#26a69a",
-      downColor: "#ef5350",
-      borderVisible: false,
-      wickUpColor: "#26a69a",
-      wickDownColor: "#ef5350",
-    })
+    // Create series based on chart type with professional colors
+    let mainSeries: any
+
+    if (chartType === "candles") {
+      mainSeries = chart.addCandlestickSeries({
+        upColor: "#26a69a",
+        downColor: "#ef5350",
+        borderVisible: false,
+        wickUpColor: "#26a69a",
+        wickDownColor: "#ef5350",
+      })
+    } else if (chartType === "line") {
+      mainSeries = chart.addLineSeries({
+        color: "#2196F3",
+        lineWidth: 2,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 4,
+      })
+    } else if (chartType === "area") {
+      mainSeries = chart.addAreaSeries({
+        topColor: "rgba(33, 150, 243, 0.4)",
+        bottomColor: "rgba(33, 150, 243, 0.0)",
+        lineColor: "#2196F3",
+        lineWidth: 2,
+      })
+    }
 
     // Format data for the chart
     const formattedData = data.map((candle) => ({
@@ -148,15 +185,16 @@ export function CandlestickChart({
       high: candle.high,
       low: candle.low,
       close: candle.close,
+      value: candle.close, // For line and area charts
     }))
 
     // Set data and fit content
-    candlestickSeries.setData(formattedData)
+    mainSeries.setData(formattedData)
     chart.timeScale().fitContent()
 
     // Save references
     chartRef.current = chart
-    seriesRef.current = candlestickSeries
+    seriesRef.current = mainSeries
 
     // Add resize listener
     window.addEventListener("resize", handleResize)
@@ -177,7 +215,7 @@ export function CandlestickChart({
         })
       }
     }
-  }, [height, timeframe])
+  }, [height, timeframe, chartType, scaleMode])
 
   // Update data when it changes
   useEffect(() => {
@@ -189,6 +227,7 @@ export function CandlestickChart({
       high: candle.high,
       low: candle.low,
       close: candle.close,
+      value: candle.close, // For line and area charts
     }))
 
     seriesRef.current.setData(formattedData)
@@ -214,7 +253,7 @@ export function CandlestickChart({
 
     // Add mouse event listeners for drawing
     chartContainerRef.current.addEventListener("mousedown", (e) => {
-      if (!drawingMode) return
+      if (!drawingMode || drawingMode === "pointer") return
 
       const rect = chartContainerRef.current!.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -229,7 +268,7 @@ export function CandlestickChart({
         drawingRef.current.startPoint = { time, price }
 
         if (drawingMode === "trendline") {
-          // Create a new line series
+          // Create a new line series with professional color
           const lineSeries = chart.addLineSeries({
             color: "#8ECAFF",
             lineWidth: 2,
@@ -249,7 +288,7 @@ export function CandlestickChart({
     })
 
     chartContainerRef.current.addEventListener("mousemove", (e) => {
-      if (!drawingRef.current.isDrawing || !drawingMode) return
+      if (!drawingRef.current.isDrawing || !drawingMode || drawingMode === "pointer") return
 
       const rect = chartContainerRef.current!.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -260,16 +299,18 @@ export function CandlestickChart({
       const time = chart.timeScale().coordinateToTime(x)
 
       if (time && price && drawingRef.current.currentLine) {
-        // Update the end point of the line
-        drawingRef.current.currentLine.setData([
-          { time: drawingRef.current.startPoint.time, value: drawingRef.current.startPoint.price },
-          { time, value: price },
-        ])
+        if (drawingMode === "trendline") {
+          // Update the end point of the line
+          drawingRef.current.currentLine.setData([
+            { time: drawingRef.current.startPoint.time, value: drawingRef.current.startPoint.price },
+            { time, value: price },
+          ])
+        }
       }
     })
 
     chartContainerRef.current.addEventListener("mouseup", (e) => {
-      if (!drawingRef.current.isDrawing || !drawingMode) return
+      if (!drawingRef.current.isDrawing || !drawingMode || drawingMode === "pointer") return
 
       const rect = chartContainerRef.current!.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -280,36 +321,38 @@ export function CandlestickChart({
       const time = chart.timeScale().coordinateToTime(x)
 
       if (time && price && drawingRef.current.currentLine) {
-        // Finalize the line
-        drawingRef.current.currentLine.setData([
-          { time: drawingRef.current.startPoint.time, value: drawingRef.current.startPoint.price },
-          { time, value: price },
-        ])
+        if (drawingMode === "trendline") {
+          // Finalize the line
+          drawingRef.current.currentLine.setData([
+            { time: drawingRef.current.startPoint.time, value: drawingRef.current.startPoint.price },
+            { time, value: price },
+          ])
 
-        // Add to drawings list
-        setDrawings((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            type: drawingMode,
-            series: drawingRef.current.currentLine,
-            points: [
-              { time: drawingRef.current.startPoint.time, value: drawingRef.current.startPoint.price },
-              { time, value: price },
-            ],
-          },
-        ])
+          // Add to drawings list
+          setDrawings((prev) => [
+            ...prev,
+            {
+              id: Date.now(),
+              type: drawingMode,
+              series: drawingRef.current.currentLine,
+              points: [
+                { time: drawingRef.current.startPoint.time, value: drawingRef.current.startPoint.price },
+                { time, value: price },
+              ],
+            },
+          ])
+        }
 
         // Reset drawing state
         drawingRef.current.isDrawing = false
         drawingRef.current.startPoint = null
         drawingRef.current.currentLine = null
-        setDrawingMode(null)
+        setDrawingMode("pointer")
       }
     })
   }
 
-  // Update indicators
+  // Update indicators with professional colors
   const updateIndicators = (formattedData: any[]) => {
     if (!chartRef.current) return
 
@@ -501,8 +544,62 @@ export function CandlestickChart({
 
           rsiPane.setData(rsiData)
 
+          // Add overbought/oversold lines with professional colors
+          const overboughtLine = chartRef.current.addLineSeries({
+            color: "rgba(255, 0, 0, 0.5)",
+            lineWidth: 1,
+            lineStyle: LineStyle.Dashed,
+            priceScaleId: "rsi",
+            pane: 1,
+          })
+
+          const oversoldLine = chartRef.current.addLineSeries({
+            color: "rgba(0, 255, 0, 0.5)",
+            lineWidth: 1,
+            lineStyle: LineStyle.Dashed,
+            priceScaleId: "rsi",
+            pane: 1,
+          })
+
+          const timeRange = formattedData.map((d) => d.time)
+          overboughtLine.setData(timeRange.map((time) => ({ time, value: 70 })))
+          oversoldLine.setData(timeRange.map((time) => ({ time, value: 30 })))
+
           // Store reference to the series
-          indicatorSeriesRef.current.rsi.push(rsiPane)
+          indicatorSeriesRef.current.rsi.push(rsiPane, overboughtLine, oversoldLine)
+          break
+
+        case "vwap":
+          // Volume Weighted Average Price
+          const vwapSeries = chartRef.current.addLineSeries({
+            color: indicator.color,
+            lineWidth: 2,
+            title: "VWAP",
+          })
+
+          // Calculate VWAP
+          let cumulativeTPV = 0 // Total Price * Volume
+          let cumulativeVolume = 0
+          const vwapData = formattedData.map((candle, index) => {
+            // Typical price = (high + low + close) / 3
+            const typicalPrice = (candle.high + candle.low + candle.close) / 3
+            const volume = data[index].volume
+
+            cumulativeTPV += typicalPrice * volume
+            cumulativeVolume += volume
+
+            const vwap = cumulativeVolume > 0 ? cumulativeTPV / cumulativeVolume : 0
+
+            return {
+              time: candle.time,
+              value: vwap,
+            }
+          })
+
+          vwapSeries.setData(vwapData)
+
+          // Store reference to the series
+          indicatorSeriesRef.current.vwap.push(vwapSeries)
           break
       }
     })
@@ -523,10 +620,41 @@ export function CandlestickChart({
   const clearDrawings = () => {
     drawings.forEach((drawing) => {
       if (chartRef.current) {
-        chartRef.current.removeSeries(drawing.series)
+        if (Array.isArray(drawing.series)) {
+          drawing.series.forEach((s: any) => chartRef.current.removeSeries(s.series))
+        } else {
+          chartRef.current.removeSeries(drawing.series)
+        }
       }
     })
     setDrawings([])
+  }
+
+  // Toggle fullscreen
+  const toggleFullscreen = () => {
+    if (!chartContainerRef.current) return
+
+    if (!isFullscreen) {
+      if (chartContainerRef.current.requestFullscreen) {
+        chartContainerRef.current.requestFullscreen()
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+      }
+    }
+
+    setIsFullscreen(!isFullscreen)
+  }
+
+  // Handle chart type change
+  const handleChartTypeChange = (type: "candles" | "line" | "area") => {
+    setChartType(type)
+  }
+
+  // Handle scale mode change
+  const handleScaleModeChange = (mode: "linear" | "logarithmic") => {
+    setScaleMode(mode)
   }
 
   return (
@@ -541,38 +669,73 @@ export function CandlestickChart({
         transition={{ duration: 0.5 }}
       />
 
-      {/* Drawing Tools */}
-      <div className="absolute top-2 left-2 flex space-x-1 z-10">
-        <motion.button
-          className={`p-1.5 rounded-md ${drawingMode === null ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"}`}
-          onClick={() => setDrawingMode(null)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <MousePointer size={16} />
-        </motion.button>
-        <motion.button
-          className={`p-1.5 rounded-md ${
-            drawingMode === "trendline" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
-          }`}
-          onClick={() => setDrawingMode("trendline")}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <TrendingUp size={16} />
-        </motion.button>
-        <motion.button
-          className="p-1.5 rounded-md bg-[#111] text-white"
-          onClick={clearDrawings}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Trash2 size={16} />
-        </motion.button>
+      {/* Chart Controls - Simplified and Grouped */}
+      <div className="absolute top-2 left-2 flex items-center space-x-2 z-10 bg-[#0A0A0A]/80 p-1 rounded-md backdrop-blur-sm">
+        {/* Chart Type */}
+        <div className="flex space-x-1">
+          <motion.button
+            className={`p-1.5 rounded-md ${
+              chartType === "candles" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+            }`}
+            onClick={() => handleChartTypeChange("candles")}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Candlestick Chart"
+          >
+            <BarChart2 size={16} />
+          </motion.button>
+          <motion.button
+            className={`p-1.5 rounded-md ${chartType === "line" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"}`}
+            onClick={() => handleChartTypeChange("line")}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Line Chart"
+          >
+            <LineChart size={16} />
+          </motion.button>
+        </div>
+
+        <div className="h-4 w-px bg-gray-700/50"></div>
+
+        {/* Drawing Tools */}
+        <div className="flex space-x-1">
+          <motion.button
+            className={`p-1.5 rounded-md ${
+              drawingMode === "pointer" || !drawingMode ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+            }`}
+            onClick={() => setDrawingMode("pointer")}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Pointer"
+          >
+            <Settings size={16} />
+          </motion.button>
+          <motion.button
+            className={`p-1.5 rounded-md ${
+              drawingMode === "trendline" ? "bg-[#8ECAFF] text-black" : "bg-[#111] text-white"
+            }`}
+            onClick={() => setDrawingMode("trendline")}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Trend Line"
+          >
+            <TrendingUp size={16} />
+          </motion.button>
+          <motion.button
+            className="p-1.5 rounded-md bg-[#111] text-white"
+            onClick={clearDrawings}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            title="Clear All Drawings"
+          >
+            <Trash2 size={16} />
+          </motion.button>
+        </div>
       </div>
 
-      {/* Indicators */}
-      <div className="absolute top-2 right-2 z-10">
+      {/* Right Side Controls */}
+      <div className="absolute top-2 right-2 flex items-center space-x-2 z-10 bg-[#0A0A0A]/80 p-1 rounded-md backdrop-blur-sm">
+        {/* Indicators */}
         <div className="relative">
           <motion.button
             className="p-1.5 rounded-md bg-[#111] text-white flex items-center"
@@ -580,7 +743,7 @@ export function CandlestickChart({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Pencil size={16} />
+            <Layers size={16} />
             <span className="ml-1 text-xs">Indicators</span>
             <ChevronDown size={14} className="ml-1" />
           </motion.button>
@@ -610,6 +773,42 @@ export function CandlestickChart({
             </motion.div>
           )}
         </div>
+
+        <div className="h-4 w-px bg-gray-700/50"></div>
+
+        {/* Chart Controls */}
+        <motion.button
+          className="p-1.5 rounded-md bg-[#111] text-white"
+          onClick={() => handleScaleModeChange(scaleMode === "linear" ? "logarithmic" : "linear")}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title={`Switch to ${scaleMode === "linear" ? "Logarithmic" : "Linear"} Scale`}
+        >
+          <Settings size={16} />
+          <span className="ml-1 text-xs">{scaleMode === "linear" ? "Lin" : "Log"}</span>
+        </motion.button>
+        <motion.button
+          className="p-1.5 rounded-md bg-[#111] text-white"
+          onClick={toggleFullscreen}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          <Maximize size={16} />
+        </motion.button>
+        <motion.button
+          className="p-1.5 rounded-md bg-[#111] text-white"
+          onClick={() => {
+            if (chartRef.current) {
+              chartRef.current.timeScale().fitContent()
+            }
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          title="Reset Zoom"
+        >
+          <RefreshCw size={16} />
+        </motion.button>
       </div>
     </div>
   )
