@@ -1,116 +1,91 @@
 "use client"
 
+import { useState } from "react"
+import { motion } from "framer-motion"
 import type { Position } from "@/lib/types"
-import { Button } from "@/components/ui/button"
-import { useIsMobile } from "@/hooks/use-mobile"
 
 interface PositionsTableProps {
   positions: Position[]
-  onClose: (positionId: string) => void
-  onEdit: (position: Position) => void
-  compact?: boolean
+  onClosePosition: (id: string) => void
+  currentPrice: number
 }
 
-export function PositionsTable({ positions, onClose, onEdit, compact = false }: PositionsTableProps) {
-  const isMobile = useIsMobile() || compact
+export function PositionsTable({ positions, onClosePosition, currentPrice }: PositionsTableProps) {
+  const [expandedPosition, setExpandedPosition] = useState<string | null>(null)
 
-  if (positions.length === 0) {
-    return <div className="text-center py-8 text-gray-500">No open positions</div>
+  const toggleExpand = (id: string) => {
+    setExpandedPosition(expandedPosition === id ? null : id)
   }
 
-  if (isMobile) {
-    return (
-      <div className="space-y-4">
-        {positions.map((position) => (
-          <div key={position.id} className="p-3 rounded-lg border border-gray-800 bg-gray-900">
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex items-center">
-                <span className={`text-sm font-medium ${position.type === "long" ? "text-green-500" : "text-red-500"}`}>
-                  {position.type === "long" ? "Long" : "Short"}
-                </span>
-                <span className="ml-2 text-sm">{position.pair}</span>
-              </div>
-              <span className={`text-sm font-medium ${position.pnl >= 0 ? "text-green-500" : "text-red-500"}`}>
-                {position.pnl >= 0 ? "+" : ""}
-                {position.pnl.toFixed(2)} ({position.pnlPercentage.toFixed(2)}%)
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-400 mb-3">
-              <div className="flex justify-between">
-                <span>Amount:</span>
-                <span className="text-white">{position.amount}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Leverage:</span>
-                <span className="text-white">{position.leverage}x</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Entry:</span>
-                <span className="text-white">{position.entryPrice}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Liquidation:</span>
-                <span className="text-white">{position.liquidationPrice}</span>
-              </div>
-            </div>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" className="flex-1 h-8" onClick={() => onEdit(position)}>
-                Edit
-              </Button>
-              <Button variant="destructive" size="sm" className="flex-1 h-8" onClick={() => onClose(position.id)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    )
+  if (positions.length === 0) {
+    return <div className="p-8 text-center text-gray-400">No open positions</div>
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-800">
-            <th className="pb-2">Pair</th>
-            <th className="pb-2">Type</th>
-            <th className="pb-2">Size</th>
-            <th className="pb-2">Leverage</th>
-            <th className="pb-2">Entry Price</th>
-            <th className="pb-2">Liquidation</th>
-            <th className="pb-2">PnL</th>
-            <th className="pb-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {positions.map((position) => (
-            <tr key={position.id} className="border-b border-gray-200 dark:border-gray-800">
-              <td className="py-3">{position.pair}</td>
-              <td className={`py-3 ${position.type === "long" ? "text-green-500" : "text-red-500"}`}>
-                {position.type === "long" ? "Long" : "Short"}
-              </td>
-              <td className="py-3">{position.amount}</td>
-              <td className="py-3">{position.leverage}x</td>
-              <td className="py-3">{position.entryPrice}</td>
-              <td className="py-3">{position.liquidationPrice}</td>
-              <td className={`py-3 ${position.pnl >= 0 ? "text-green-500" : "text-red-500"}`}>
-                {position.pnl >= 0 ? "+" : ""}
-                {position.pnl.toFixed(2)} ({position.pnlPercentage.toFixed(2)}%)
-              </td>
-              <td className="py-3">
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => onEdit(position)}>
-                    Edit
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => onClose(position.id)}>
-                    Close
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="p-4">
+      {positions.map((position) => (
+        <motion.div
+          key={position.id}
+          className="mb-4 bg-[#0A0A0A] rounded-lg border border-gray-800 overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="p-4 cursor-pointer" onClick={() => toggleExpand(position.id)}>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-bold text-white">{position.pair}</h3>
+              <span className={`text-sm ${position.pnlPercentage >= 0 ? "text-green-500" : "text-red-500"}`}>
+                Unrealized PnL: {position.pnlPercentage.toFixed(2)}%
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Positions</div>
+                <div className="font-medium text-white">{position.size.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Margin</div>
+                <div className="font-medium text-white">{position.margin.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">MMR</div>
+                <div className="font-medium text-white">{Math.abs(position.pnlPercentage).toFixed(2)}%</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Entry price</div>
+                <div className="font-medium text-white">{position.entryPrice.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Mark price</div>
+                <div className="font-medium text-white">{currentPrice.toFixed(3)}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-xs mb-1">Estimated Liquidation Price</div>
+                <div className="font-medium text-white">{position.liquidationPrice.toFixed(3)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex border-t border-gray-800">
+            <button className="flex-1 py-3 text-center text-white bg-[#001C30] hover:bg-[#002D4A] transition-colors">
+              TP/SL
+            </button>
+            <button className="flex-1 py-3 text-center text-white bg-[#001C30] hover:bg-[#002D4A] transition-colors border-l border-r border-gray-800">
+              Reverse
+            </button>
+            <button
+              className="flex-1 py-3 text-center text-white bg-[#001C30] hover:bg-[#002D4A] transition-colors"
+              onClick={() => onClosePosition(position.id)}
+            >
+              Close
+            </button>
+          </div>
+        </motion.div>
+      ))}
     </div>
   )
 }

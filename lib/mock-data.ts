@@ -40,9 +40,6 @@ export const suiTradingPairs: TradingPair[] = [
   },
 ]
 
-// Export suiTradingPairs as mockTradingPairs for backward compatibility
-export const mockTradingPairs = suiTradingPairs
-
 // Generate mock candle data
 export function generateMockCandleData(count: number, timeframe = "1h"): CandleData[] {
   const data: CandleData[] = []
