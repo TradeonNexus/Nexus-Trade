@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useWallet } from "@/contexts/wallet-context"
@@ -13,13 +13,6 @@ export default function SignInPage() {
   const { wallet, connectWallet, isConnecting } = useWallet()
   const { toast } = useToast()
   const [error, setError] = useState<string | null>(null)
-
-  // If already logged in, redirect to trading
-  useEffect(() => {
-    if (wallet?.connected) {
-      router.push("/trading")
-    }
-  }, [wallet, router])
 
   const handleConnectWallet = async () => {
     try {

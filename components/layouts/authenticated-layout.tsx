@@ -46,48 +46,46 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
           </button>
         </div>
       </header>
-      <div className="fixed left-0 top-0 bottom-0 z-40 w-[72px] bg-[#0A0A0A] border-r border-gray-800/30 mt-24 ml-4 rounded-lg">
-        <div className="flex flex-col items-center py-4 space-y-6">
-          <Link
-            href="/dashboard"
-            className={`p-3 rounded-lg ${pathname === "/dashboard" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
-          >
-            <Image src="/images/icons/dashboard.png" alt="Dashboard" width={24} height={24} />
-          </Link>
-          <Link
-            href="/trading"
-            className={`p-3 rounded-lg ${pathname === "/trading" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
-          >
-            <Image src="/images/icons/trade.png" alt="Trading" width={24} height={24} />
-          </Link>
-          <Link
-            href="/faucet"
-            className={`p-3 rounded-lg ${pathname === "/faucet" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
-          >
-            <Image src="/images/icons/faucet.png" alt="Faucet" width={24} height={24} />
-          </Link>
-          <Link
-            href="/deposit"
-            className={`p-3 rounded-lg ${pathname === "/deposit" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
-          >
-            <Image src="/images/icons/deposit.png" alt="Deposit" width={24} height={24} />
-          </Link>
-          <Link
-            href="/withdraw"
-            className={`p-3 rounded-lg ${pathname === "/withdraw" ? "bg-[#111]" : "hover:bg-[#111]"} transition-colors`}
-          >
-            <Image src="/images/icons/withdraw.png" alt="Withdraw" width={24} height={24} />
-          </Link>
-          <button
-            className="p-3 rounded-lg hover:bg-[#111] transition-colors"
-            onClick={() => {
-              localStorage.removeItem("nexus_wallet")
-              window.location.href = "/"
-            }}
-          >
-            <Image src="/images/icons/signout.png" alt="Sign Out" width={24} height={24} />
-          </button>
-        </div>
+      <div className="fixed left-2 top-20 bottom-4 z-40 w-20 bg-[#0A0A0A] border-r border-gray-800/30 rounded-lg shadow-lg flex flex-col items-center py-3 space-y-3 transition-all duration-300">
+        <Link
+          href="/dashboard"
+          className={`p-2 rounded-md flex items-center justify-center ${pathname === "/dashboard" ? "bg-primary/20 border border-primary text-primary" : "hover:bg-[#111] text-white"} transition-colors`}
+        >
+          <Image src="/images/icons/dashboard.png" alt="Dashboard" width={24} height={24} />
+        </Link>
+        <Link
+          href="/trading"
+          className={`p-2 rounded-md flex items-center justify-center ${pathname === "/trading" ? "bg-primary/20 border border-primary text-primary" : "hover:bg-[#111] text-white"} transition-colors`}
+        >
+          <Image src="/images/icons/trade.png" alt="Trading" width={24} height={24} />
+        </Link>
+        <Link
+          href="/faucet"
+          className={`p-2 rounded-md flex items-center justify-center ${pathname === "/faucet" ? "bg-primary/20 border border-primary text-primary" : "hover:bg-[#111] text-white"} transition-colors`}
+        >
+          <Image src="/images/icons/faucet.png" alt="Faucet" width={24} height={24} />
+        </Link>
+        <Link
+          href="/deposit"
+          className={`p-2 rounded-md flex items-center justify-center ${pathname === "/deposit" ? "bg-primary/20 border border-primary text-primary" : "hover:bg-[#111] text-white"} transition-colors`}
+        >
+          <Image src="/images/icons/deposit.png" alt="Deposit" width={24} height={24} />
+        </Link>
+        <Link
+          href="/withdraw"
+          className={`p-2 rounded-md flex items-center justify-center ${pathname === "/withdraw" ? "bg-primary/20 border border-primary text-primary" : "hover:bg-[#111] text-white"} transition-colors`}
+        >
+          <Image src="/images/icons/withdraw.png" alt="Withdraw" width={24} height={24} />
+        </Link>
+        <button
+          className="p-2 rounded-md flex items-center justify-center hover:bg-[#111] text-white transition-colors"
+          onClick={() => {
+            localStorage.removeItem("nexus_wallet")
+            window.location.href = "/"
+          }}
+        >
+          <Image src="/images/icons/signout.png" alt="Sign Out" width={24} height={24} />
+        </button>
       </div>
       <main className="pt-24 pl-[88px] pr-4 pb-4 min-h-screen">{children}</main>
       <Toaster />

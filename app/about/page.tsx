@@ -65,9 +65,8 @@ export default function AboutPage() {
                 className="bg-cta-blue text-dark hover:bg-primary text-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => router.push("/sign-in")}
               >
-                Login
+                <Link href="/sign-in">Login</Link>
               </AnimatedButton>
             </div>
             <MobileMenu />
@@ -94,8 +93,8 @@ export default function AboutPage() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex space-x-4">
-            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary" onClick={() => router.push("/sign-in")}>
-              Login
+            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary">
+              <Link href="/sign-in">Login</Link>
             </AnimatedButton>
             <AnimatedButton
               variant="outline"

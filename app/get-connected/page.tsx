@@ -78,9 +78,8 @@ export default function GetConnectedPage() {
                 className="bg-cta-blue text-dark hover:bg-primary text-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => router.push("/sign-in")}
               >
-                Login
+                <Link href="/sign-in">Login</Link>
               </AnimatedButton>
             </div>
             <MobileMenu />
@@ -107,8 +106,8 @@ export default function GetConnectedPage() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex space-x-4">
-            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary" onClick={() => router.push("/sign-in")}>
-              Login
+            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary">
+              <Link href="/sign-in">Login</Link>
             </AnimatedButton>
             <AnimatedButton
               variant="outline"
@@ -145,9 +144,8 @@ export default function GetConnectedPage() {
               <AnimatedButton
                 className="bg-cta-blue text-dark hover:bg-primary px-4 sm:px-8 py-2 sm:py-6 text-sm md:text-base"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(142, 202, 255, 0.5)" }}
-                onClick={() => router.push("/sign-in")}
               >
-                Login
+                <Link href="/sign-in">Login</Link>
               </AnimatedButton>
               <AnimatedButton
                 variant="outline"
@@ -902,9 +900,8 @@ export default function GetConnectedPage() {
               <AnimatedButton
                 className="bg-dark text-white hover:bg-secondary px-4 sm:px-8 py-2 sm:py-6 text-sm md:text-base"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(0, 15, 29, 0.5)" }}
-                onClick={() => router.push("/sign-in")}
               >
-                Login
+                <Link href="/sign-in">Login</Link>
               </AnimatedButton>
               <AnimatedButton
                 variant="outline"

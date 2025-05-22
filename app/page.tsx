@@ -60,18 +60,6 @@ export default function Home() {
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.6])
 
-  const handleLogin = () => {
-    if (wallet?.connected) {
-      router.push("/dashboard")
-    } else {
-      connectWallet("sui").then((success) => {
-        if (success) {
-          router.push("/dashboard")
-        }
-      })
-    }
-  }
-
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -105,9 +93,8 @@ export default function Home() {
                 className="bg-cta-blue text-dark hover:bg-primary text-xs"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleLogin}
               >
-                Login
+                <Link href="/sign-in">Login</Link>
               </AnimatedButton>
             </div>
             <MobileMenu />
@@ -134,8 +121,8 @@ export default function Home() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex space-x-4">
-            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary" onClick={handleLogin}>
-              Login
+            <AnimatedButton className="bg-cta-blue text-dark hover:bg-primary">
+              <Link href="/sign-in">Login</Link>
             </AnimatedButton>
             <AnimatedButton
               variant="outline"
@@ -177,9 +164,8 @@ export default function Home() {
               <AnimatedButton
                 className="bg-cta-blue text-dark hover:bg-primary px-4 sm:px-8 py-2 sm:py-6 text-sm md:text-base"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(142, 202, 255, 0.5)" }}
-                onClick={handleLogin}
               >
-                Login
+                <Link href="/sign-in">Login</Link>
               </AnimatedButton>
               <AnimatedButton
                 variant="outline"
@@ -436,26 +422,13 @@ export default function Home() {
                   Join a vibrant community of traders and maximize your potential.
                 </p>
                 <motion.div whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-                  <button
-                    onClick={handleLogin}
+                  <AnimatedButton
+                    asChild
                     className="text-primary flex items-center justify-center gap-2 text-sm md:text-base"
+                    whileHover={{ scale: 1.1 }}
                   >
-                    Sign Up
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5l7 7-7 7"></path>
-                    </svg>
-                  </button>
+                    <Link href="/sign-in">Sign Up</Link>
+                  </AnimatedButton>
                 </motion.div>
               </div>
             </FadeIn>
@@ -477,26 +450,13 @@ export default function Home() {
                   Follow successful trades and learn from the best in the industry.
                 </p>
                 <motion.div whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
-                  <button
-                    onClick={handleLogin}
+                  <AnimatedButton
+                    asChild
                     className="text-primary flex items-center justify-center gap-2 text-sm md:text-base"
+                    whileHover={{ scale: 1.1 }}
                   >
-                    Join Now
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M5 12h14"></path>
-                      <path d="M12 5l7 7-7 7"></path>
-                    </svg>
-                  </button>
+                    <Link href="/sign-in">Join Now</Link>
+                  </AnimatedButton>
                 </motion.div>
               </div>
             </FadeIn>
@@ -525,16 +485,14 @@ export default function Home() {
               <AnimatedButton
                 className="bg-dark text-white hover:bg-secondary px-4 sm:px-8 py-2 sm:py-6 text-sm md:text-base"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(0, 15, 29, 0.5)" }}
-                onClick={handleLogin}
               >
-                Get Started
+                <Link href="/sign-in">Get Started</Link>
               </AnimatedButton>
               <AnimatedButton
                 variant="outline"
                 className="border-dark text-dark hover:bg-light-blue px-4 sm:px-8 py-2 sm:py-6 text-sm md:text-base mt-3 sm:mt-0"
-                onClick={handleLogin}
               >
-                Login
+                <Link href="/sign-in">Login</Link>
               </AnimatedButton>
             </div>
           </FadeIn>
@@ -596,15 +554,16 @@ export default function Home() {
           >
             <motion.div
               whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 300 }}
               animate={{
-                y: [0, -5, 0],
-                rotate: [0, 5, 0],
+                y: [-5, 0],
+                rotate: [0, 5],
               }}
               transition={{
                 duration: 3,
                 repeat: Number.POSITIVE_INFINITY,
                 ease: "easeInOut",
+                type: "spring",
+                stiffness: 300,
               }}
             >
               <Logo size="lg" withLink={false} />

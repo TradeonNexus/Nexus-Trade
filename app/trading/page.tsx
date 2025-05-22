@@ -1,5 +1,6 @@
 "use client"
 
+import { AuthenticatedLayout } from "@/components/layouts/authenticated-layout"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useWallet } from "@/contexts/wallet-context"
@@ -43,5 +44,9 @@ export default function TradingPage() {
     return null
   }
 
-  return <TradingPageContent />
+  return (
+    <AuthenticatedLayout>
+      <TradingPageContent />
+    </AuthenticatedLayout>
+  )
 }
