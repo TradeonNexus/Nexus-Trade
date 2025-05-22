@@ -9,6 +9,7 @@ import { PriceEditor } from "@/components/trading/price-editor"
 import type { OrderType, PositionType, Token } from "@/lib/types"
 import { AlertTriangle } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { executeTrade } from '@/services/trade';
 
 interface TradeFormProps {
   currentPrice: number
@@ -76,22 +77,53 @@ export function TradeForm({
     }
   }, [positionType, currentPrice])
 
-  const handleSubmit = () => {
-    if (!validateForm()) return
 
+
+// modified handleSubmit function:
+const handleSubmit = async () => {
+  if (!validateForm()) return;
+
+  try {
+    const result = await executeTrade({
+      pair: `${tradingPair.baseAsset}/${tradingPair.quoteAsset}`,
+      amount,
+      leverage,
+      direction: positionType === 'long' ? 'LONG' : 'SHORT',
+      orderType: orderType === 'market' ? 'MARKET' : 'LIMIT',
+      limitPrice: orderType === 'limit' ? limitPrice : undefined,
+      stopLoss: stopLoss ? Number.parseFloat(stopLoss) : undefined,
+      takeProfit: takeProfit ? Number.parseFloat(takeProfit) : undefined
+    });
+
+    // Show success notification
+    toast({
+      title: 'Trade Executed',
+      description: `Successfully opened ${positionType} position`,
+    });
+
+    // Optional: Call parent callback if exists
     if (onTrade) {
       onTrade({
         type: positionType,
         orderType,
         amount,
         leverage,
-        price: orderType === "limit" ? limitPrice : undefined,
+        price: orderType === 'limit' ? limitPrice : currentPrice,
         stopLoss: stopLoss ? Number.parseFloat(stopLoss) : undefined,
         takeProfit: takeProfit ? Number.parseFloat(takeProfit) : undefined,
         token: selectedToken,
-      })
+      });
     }
+
+    return result;
+  } catch (error) {
+    toast({
+      title: 'Trade Failed',
+      description: error.response?.data?.message || 'Failed to execute trade',
+      variant: 'destructive'
+    });
   }
+};
 
   const validateForm = () => {
     // Basic validation
